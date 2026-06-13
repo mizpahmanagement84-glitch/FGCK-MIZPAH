@@ -22,6 +22,15 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 4000;
 
+// Log environment on startup
+console.log('Environment:', {
+  NODE_ENV: process.env.NODE_ENV,
+  PORT: port,
+  DATABASE_URL: process.env.DATABASE_URL ? '[SET]' : '[NOT SET]',
+  JWT_SECRET: process.env.JWT_SECRET ? '[SET]' : '[NOT SET]',
+  CORS_ORIGIN: process.env.CORS_ORIGIN || 'not set'
+});
+
 app.use(cors());
 app.use(express.json());
 
@@ -65,11 +74,27 @@ const { setIo } = require('./realtime');
 initDatabase().then(() => {
   const server = http.createServer(app);
   // initialize realtime sockets (allows CORS to frontend)
-  setIo(server, { origin: process.env.CORS_ORIGIN || '*' });
+  try {
+    setIo(server, { origin: process.env.CORS_ORIGIN || '*' });
+  } catch (err) {
+    console.error('Socket.io initialization failed:', err);
+  }
   server.listen(port, () => {
     console.log(`Server running on http://localhost:${port}`);
+  });
+  server.on('error', (err) => {
+    console.error('Server error:', err);
   });
 }).catch((err) => {
   console.error('Database initialization failed:', err);
   process.exit(1);
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception:', err);
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });

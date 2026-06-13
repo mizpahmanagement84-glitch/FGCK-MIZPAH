@@ -71,7 +71,7 @@ app.use((err, req, res, next) => {
 const http = require('http');
 const { setIo } = require('./realtime');
 
-initDatabase().then(() => {
+async function startServer() {
   const server = http.createServer(app);
   // initialize realtime sockets (allows CORS to frontend)
   try {
@@ -85,14 +85,20 @@ initDatabase().then(() => {
   server.on('error', (err) => {
     console.error('Server error:', err);
   });
+}
+
+initDatabase().then(() => {
+  startServer();
 }).catch((err) => {
   console.error('Database initialization failed:', err);
-  process.exit(1);
+  console.warn('Continuing startup using file-based store. Database features may be limited.');
+  // proceed to start server even if DB init failed
+  startServer();
 });
 
 process.on('uncaughtException', (err) => {
   console.error('Uncaught Exception:', err);
-  process.exit(1);
+  // do not exit immediately on uncaught exception in production; log and allow process manager to decide
 });
 
 process.on('unhandledRejection', (reason, promise) => {

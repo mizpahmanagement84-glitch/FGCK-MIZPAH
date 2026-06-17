@@ -5,7 +5,7 @@ function NavBar({ user, onLogout }) {
   return (
     <aside className="navbar">
       <div>
-        <h2>Mizpah Admin</h2>
+        <h2>Mizpah {role === 'elder' ? 'Elder' : 'Admin'}</h2>
         <p>Welcome, {user?.username || 'Admin'}</p>
       </div>
 
@@ -15,10 +15,12 @@ function NavBar({ user, onLogout }) {
         {role === 'member' && <NavLink className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'} to="/member-details">My Details</NavLink>}
         {role === 'member' && <NavLink className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'} to="/my-tithe">My Tithe</NavLink>}
         {role === 'member' && <NavLink className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'} to="/my-project">My Project</NavLink>}
+        {role === 'member' && <NavLink className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'} to="/welfare">Welfare</NavLink>}
         {(role === 'pastor' || role === 'elder') && <NavLink className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'} to="/givings">Offerings</NavLink>}
+        {role !== 'member' && <NavLink className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'} to="/projects">Project</NavLink>}
+        {(role === 'pastor' || role === 'elder') && <NavLink className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'} to="/welfare">Welfare</NavLink>}
         {role === 'pastor' && <NavLink className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'} to="/reports">Tithe</NavLink>}
         {(role === 'pastor' || role === 'elder') && <NavLink className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'} to="/expenses">Expenses</NavLink>}
-        {role !== 'member' && <NavLink className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'} to="/projects">Project</NavLink>}
         {role !== 'member' && <NavLink className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'} to="/attendance">Attendance</NavLink>}
         {role !== 'member' && <NavLink className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'} to="/inventory">Inventory</NavLink>}
         {role !== 'member' && <NavLink className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'} to="/departments">Departments</NavLink>}

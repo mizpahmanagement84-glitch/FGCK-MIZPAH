@@ -1,8 +1,7 @@
 import { io as Client } from 'socket.io-client';
-import client from './api';
 
-const base = client.defaults.baseURL || window.location.origin;
-const origin = base.replace(/\/api\/?$/, '');
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+const origin = apiBaseUrl ? apiBaseUrl.replace(/\/api\/?$/, '') : window.location.origin;
 
 const socket = Client(origin, { transports: ['websocket'], autoConnect: true });
 

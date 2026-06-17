@@ -1,4 +1,5 @@
 const { Pool } = require('pg');
+const bcrypt = require('bcryptjs');
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -142,13 +143,45 @@ async function initDatabase() {
 
     console.log('✓ Database tables initialized');
 
+    const defaultAdmins = [
+      {
+        username: 'pastor',
+        password: 'password123',
+        role: 'pastor',
+        seedHash: '$2a$10$WzTgN0xwFjF1Y7dH2QxI5Oza/tgynw0kLJYv2X2BQ1YWnjUXLZkOS'
+      },
+      {
+        username: 'Elder',
+        password: 'Eldermizpah123',
+        role: 'elder',
+        seedHash: '$2a$10$uRFJuYxGe/sQvVHZ7YkIr.9jF1w5oSVt8qj68.EVDswyvRsNf2F.FW'
+      }
+    ];
+
     const result = await query('SELECT COUNT(*) FROM admins');
-    if (Number(result.rows[0].count) === 0) {
+    const adminCount = Number(result.rows[0].count);
+    if (adminCount === 0) {
+      const values = [
+        'pastor', bcrypt.hashSync('password123', 10), 'pastor',
+        'Elder', bcrypt.hashSync('Eldermizpah123', 10), 'elder'
+      ];
       await query(
         'INSERT INTO admins (username, password, role) VALUES ($1, $2, $3), ($4, $5, $6)',
-        ['pastor', '$2a$10$WzTgN0xwFjF1Y7dH2QxI5Oza/tgynw0kLJYv2X2BQ1YWnjUXLZkOS', 'pastor', 'Elder', '$2a$10$uRFJuYxGe/sQvVHZ7YkIr.9jF1w5oSVt8qj68.EVDswyvRsNf2F.FW', 'elder']
+        values
       );
       console.log('✓ Admin users seeded');
+    } else {
+      for (const adminDef of defaultAdmins) {
+        const adminRow = await query('SELECT id, password FROM admins WHERE LOWER(username) = $1', [adminDef.username.toLowerCase()]);
+        if (adminRow.rows.length > 0) {
+          const existing = adminRow.rows[0];
+          if (existing.password === adminDef.seedHash) {
+            const updateHash = bcrypt.hashSync(adminDef.password, 10);
+            await query('UPDATE admins SET password = $1 WHERE id = $2', [updateHash, existing.id]);
+            console.log(`✓ Updated default admin password for ${adminDef.username}`);
+          }
+        }
+      }
     }
   } catch (error) {
     console.error('Database initialization error:', error.message);

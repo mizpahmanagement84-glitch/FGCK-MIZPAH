@@ -184,7 +184,7 @@ function Reports() {
                 <label>Name</label>
                 <select value={form.memberId} onChange={handleChange('memberId')} required>
                   <option value="">Select member</option>
-                  {filteredMembers.map((member) => (
+                  {[...filteredMembers].sort((a, b) => `${a.firstName} ${a.lastName}`.localeCompare(`${b.firstName} ${b.lastName}`)).map((member) => (
                     <option key={member.id} value={member.id}>
                       {member.firstName}{member.memberNumber ? ` (${member.memberNumber})` : ''}
                     </option>
@@ -242,6 +242,7 @@ function Reports() {
                         <th>Name</th>
                         <th>Amount</th>
                         <th>Date</th>
+                        <th>Recorded By</th>
                         <th>Action</th>
                       </tr>
                     </thead>
@@ -252,20 +253,66 @@ function Reports() {
                           <td>{tithe.firstName || 'Unknown'}</td>
                           <td>{formatCurrency(tithe.amount)}</td>
                           <td>{new Date(tithe.givingDate).toLocaleDateString()}</td>
+                          <td style={{ fontSize: '0.9em', color: '#666' }}>{tithe.recordedByName || 'Admin'}</td>
                           <td style={{ position: 'relative' }}>
                             <button
                               type="button"
-                              className="action-button"
                               onClick={() => toggleActionMenu(tithe.id)}
+                              style={{
+                                backgroundColor: '#c0392b',
+                                color: '#fff',
+                                border: 'none',
+                                padding: '6px 12px',
+                                borderRadius: 4,
+                                cursor: 'pointer'
+                              }}
                             >
-                              Action
+                              Actions
                             </button>
                             {actionMenuId === tithe.id && (
-                              <div className="action-menu">
+                              <div style={{
+                                position: 'absolute',
+                                top: '100%',
+                                right: 0,
+                                backgroundColor: '#fff',
+                                border: '1px solid #ddd',
+                                boxShadow: '0 4px 10px rgba(0,0,0,0.12)',
+                                zIndex: 10,
+                                width: 140
+                              }}>
                                 {role === 'pastor' && (
-                                  <button type="button" onClick={() => handleEditTithe(tithe)}>Edit</button>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleEditTithe(tithe)}
+                                    style={{
+                                      display: 'block',
+                                      width: '100%',
+                                      textAlign: 'left',
+                                      padding: '8px 10px',
+                                      background: 'none',
+                                      border: 'none',
+                                      cursor: 'pointer'
+                                    }}
+                                  >
+                                    Edit
+                                  </button>
                                 )}
-                                <button type="button" onClick={() => handleDeleteTithe(tithe.id)}>Delete</button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteTithe(tithe.id)}
+                                  style={{
+                                    display: 'block',
+                                    width: '100%',
+                                    textAlign: 'left',
+                                    padding: '8px 10px',
+                                    background: 'none',
+                                    border: 'none',
+                                    color: '#c0392b',
+                                    cursor: 'pointer'
+                                  }}
+                                >
+                                  Delete
+                                </button>
                               </div>
                             )}
                           </td>
@@ -301,6 +348,7 @@ function Reports() {
                       <th>Name</th>
                       <th>Date</th>
                       <th>Amount</th>
+                      <th>Recorded By</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -310,6 +358,7 @@ function Reports() {
                         <td>{tithe.memberName}</td>
                         <td>{new Date(tithe.givingDate).toLocaleDateString()}</td>
                         <td>{formatCurrency(tithe.amount)}</td>
+                        <td style={{ fontSize: '0.9em', color: '#666' }}>{tithe.recordedByName || 'Admin'}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -331,7 +380,7 @@ function Reports() {
                 <label>Member</label>
                 <select value={editingForm.memberId} onChange={handleEditChange('memberId')} required>
                   <option value="">Select member</option>
-                  {members.map((member) => (
+                  {[...members].sort((a, b) => `${a.firstName} ${a.lastName}`.localeCompare(`${b.firstName} ${b.lastName}`)).map((member) => (
                     <option key={member.id} value={member.id}>
                       {member.firstName}{member.memberNumber ? ` (${member.memberNumber})` : ''}
                     </option>

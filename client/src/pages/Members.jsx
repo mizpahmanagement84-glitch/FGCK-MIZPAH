@@ -125,12 +125,27 @@ function Members() {
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: flex-start;
+        justify-content: space-between;
         padding: 0.15cm 0.4cm 0.25cm;
         box-sizing: border-box;
       }
       .card-front {
         padding-top: 0.1cm;
+      }
+      .member-bottom {
+        margin-top: auto;
+        width: 100%;
+      }
+      .member-line {
+        font-size: 10px;
+        margin-top: 8px;
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+      }
+      .member-line span {
+        display: inline-block;
       }
       .logo img {
         width: 56px;
@@ -196,7 +211,9 @@ function Members() {
         <div class="main-title">MEMBERSHIP CARD</div>
         <div class="member-number">${member.memberNumber || ''}</div>
         <div class="member-name">${memberFullName}</div>
-        <div class="details">${titleCase(member.group || '')} · ${formatDate(member.joinedAt)}</div>
+        <div class="member-bottom">
+          <div class="member-line"><span>Group: ${titleCase(member.group || 'All')}</span><span>Date joined: ${formatDate(member.joinedAt) || 'N/A'}</span></div>
+        </div>
       </div>
     `;
 

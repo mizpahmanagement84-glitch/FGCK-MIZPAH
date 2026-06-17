@@ -8,9 +8,12 @@ function Givings() {
   const [search, setSearch] = useState('');
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
-  const [form, setForm] = useState({ memberId: '', amount: '', givingDate: '', category: 'Offering', notes: '' });
+  const [form, setForm] = useState({ memberId: '', amount: '', givingDate: '', category: 'Offering', notes: '', customCategory: '' });
   const [openMonths, setOpenMonths] = useState({});
   const [showForm, setShowForm] = useState(true);
+  const [editingOffering, setEditingOffering] = useState(null);
+  const [editOfferingForm, setEditOfferingForm] = useState({ memberId: '', amount: '', givingDate: '', category: 'Offering', notes: '', customCategory: '' });
+  const [actionMenuId, setActionMenuId] = useState(null);
   const role = localStorage.getItem('role');
 
   const categories = [
@@ -20,7 +23,11 @@ function Givings() {
     'Sunday school',
     'Kifurushi',
     'Seed',
-    'Special offering'
+    'Special offering',
+    'Teens',
+    'kesha',
+    'Wednesday offering',
+    'Other'
   ];
 
   const loadData = async () => {
@@ -44,20 +51,74 @@ function Givings() {
   useEffect(() => { loadData().catch(console.error); }, []);
 
   const handleFormChange = (field) => (event) => {
-    setForm({ ...form, [field]: event.target.value });
+    const value = event.target.value;
+    setForm((current) => {
+      const next = { ...current, [field]: value };
+      if (field === 'category' && value !== 'Other') {
+        next.customCategory = '';
+      }
+      return next;
+    });
+  };
+
+  const handleCustomCategoryChange = (event) => {
+    setForm({ ...form, customCategory: event.target.value });
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    await client.post('/givings', form);
-    setForm({ memberId: '', amount: '', givingDate: '', category: 'Offering', notes: '' });
+    const category = form.category === 'Other' ? (form.customCategory || 'Other') : form.category;
+    await client.post('/givings', { ...form, category });
+    setForm({ memberId: '', amount: '', givingDate: '', category: 'Offering', notes: '', customCategory: '' });
     loadData();
   };
 
   const handleDelete = async (id) => {
     if (!window.confirm('Remove this offering record?')) return;
     await client.delete(`/givings/${id}`);
+    if (actionMenuId === id) {
+      setActionMenuId(null);
+    }
+    if (editingOffering && editingOffering.id === id) {
+      setEditingOffering(null);
+    }
     loadData();
+  };
+
+  const handleEditChange = (field) => (event) => {
+    setEditOfferingForm({ ...editOfferingForm, [field]: event.target.value });
+  };
+
+  const handleEditOffering = (item) => {
+    setActionMenuId(null);
+    setEditingOffering(item);
+    setEditOfferingForm({
+      memberId: item.memberId ? String(item.memberId) : '',
+      amount: String(item.amount),
+      givingDate: item.givingDate?.slice(0, 10) || new Date().toISOString().split('T')[0],
+      category: item.category || 'Offering',
+      notes: item.notes || ''
+    });
+  };
+
+  const submitEditOffering = async (event) => {
+    event.preventDefault();
+    if (!editingOffering) return;
+    await client.put(`/givings/${editingOffering.id}`, {
+      memberId: editOfferingForm.memberId || null,
+      amount: Number(editOfferingForm.amount),
+      givingDate: editOfferingForm.givingDate,
+      category: editOfferingForm.category,
+      notes: editOfferingForm.notes
+    });
+    setEditingOffering(null);
+    setEditOfferingForm({ memberId: '', amount: '', givingDate: '', category: 'Offering', notes: '' });
+    loadData();
+  };
+
+  const cancelEditOffering = () => {
+    setEditingOffering(null);
+    setEditOfferingForm({ memberId: '', amount: '', givingDate: '', category: 'Offering', notes: '' });
   };
 
   const grouped = useMemo(() => {
@@ -199,6 +260,18 @@ function Givings() {
                   <input type="number" step="0.01" value={form.amount} onChange={handleFormChange('amount')} required />
                 </div>
               </div>
+              {form.category === 'Other' && (
+                <div className="form-field">
+                  <label>Other category</label>
+                  <input
+                    type="text"
+                    value={form.customCategory}
+                    onChange={handleCustomCategoryChange}
+                    placeholder="Enter custom offering category"
+                    required
+                  />
+                </div>
+              )}
               <div className="form-field">
                 <label>Notes</label>
                 <textarea rows="2" value={form.notes} onChange={handleFormChange('notes')} />
@@ -233,22 +306,67 @@ function Givings() {
                           <table className="table-list">
                             <thead>
                               <tr>
-                                <th>Date</th>
-                                <th>Category</th>
-                                <th>Amount</th>
+                                <th style={{ minWidth: 160 }}>Date</th>
+                                {itemsForDate.map((it) => (
+                                  <th key={it.id} style={{ textAlign: 'center' }}>{it.category}</th>
+                                ))}
+                                <th style={{ minWidth: 120 }}>Recorded By</th>
+                                <th style={{ minWidth: 140 }}>Actions</th>
                               </tr>
                             </thead>
                             <tbody>
-                              {itemsForDate.map((it) => (
-                                <tr key={it.id}>
-                                  <td>{new Date(it.givingDate).toLocaleDateString()}</td>
-                                  <td>{it.category}</td>
-                                  <td>{formatCurrency(it.amount)}</td>
-                                </tr>
-                              ))}
                               <tr>
-                                <td colSpan={2}><strong>Date total</strong></td>
-                                <td><strong>{formatCurrency(dateSum)}</strong></td>
+                                <td style={{ verticalAlign: 'middle' }}>{new Date(dateKey).toLocaleDateString()}</td>
+                                {itemsForDate.map((it) => (
+                                  <td key={it.id} style={{ textAlign: 'center', verticalAlign: 'middle' }}>{formatCurrency(it.amount)}</td>
+                                ))}
+                                <td style={{ verticalAlign: 'middle', fontSize: '0.9em', color: '#666' }}>
+                                  {itemsForDate[0]?.recordedByName ? `${itemsForDate[0].recordedByName}` : 'Admin'}
+                                </td>
+                                <td style={{ position: 'relative' }}>
+                                  <button
+                                    type="button"
+                                    onClick={() => setActionMenuDate(actionMenuDate === dateKey ? null : dateKey)}
+                                    style={{
+                                      backgroundColor: '#c0392b',
+                                      color: '#fff',
+                                      border: 'none',
+                                      padding: '6px 12px',
+                                      borderRadius: 4,
+                                      cursor: 'pointer'
+                                    }}
+                                  >
+                                    Actions
+                                  </button>
+                                  {actionMenuDate === dateKey && (
+                                    <div style={{
+                                      position: 'absolute',
+                                      top: '100%',
+                                      right: 0,
+                                      backgroundColor: '#fff',
+                                      border: '1px solid #ddd',
+                                      boxShadow: '0 4px 10px rgba(0,0,0,0.12)',
+                                      zIndex: 10,
+                                      padding: 8,
+                                      width: 320
+                                    }}>
+                                      {itemsForDate.map((it) => (
+                                        <div key={it.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, padding: '6px 4px', borderBottom: '1px solid #f0f0f0' }}>
+                                          <div style={{ flex: 1 }}>{it.category} — {formatCurrency(it.amount)}</div>
+                                          <div style={{ display: 'flex', gap: 6 }}>
+                                            <button type="button" onClick={() => { handleEditOffering(it); setActionMenuDate(null); }} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>Edit</button>
+                                            <button type="button" onClick={() => { handleDelete(it.id); setActionMenuDate(null); }} style={{ background: 'none', border: 'none', color: '#c0392b', cursor: 'pointer' }}>Delete</button>
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
+                                </td>
+                              </tr>
+                              <tr>
+                                <td><strong>Date total</strong></td>
+                                <td colSpan={Math.max(1, itemsForDate.length)} style={{ textAlign: 'right' }}><strong>{formatCurrency(dateSum)}</strong></td>
+                                <td />
                               </tr>
                             </tbody>
                           </table>
@@ -260,6 +378,51 @@ function Givings() {
               </div>
             );
           })}
+        </div>
+      )}
+      {editingOffering && (
+        <div className="section-card" style={{ marginTop: 16 }}>
+          <h2>Edit offering</h2>
+          <form onSubmit={submitEditOffering}>
+            <div className="input-row">
+              <div className="form-field">
+                <label>Category</label>
+                <select value={editOfferingForm.category} onChange={handleEditChange('category')} required>
+                  {categories.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="form-field">
+                <label>Date</label>
+                <input type="date" value={editOfferingForm.givingDate} onChange={handleEditChange('givingDate')} required />
+              </div>
+            </div>
+            <div className="input-row">
+              <div className="form-field">
+                <label>Amount</label>
+                <input type="number" step="0.01" value={editOfferingForm.amount} onChange={handleEditChange('amount')} required />
+              </div>
+              <div className="form-field">
+                <label>Member ID</label>
+                <input type="text" value={editOfferingForm.memberId} onChange={handleEditChange('memberId')} />
+              </div>
+            </div>
+            <div className="form-field">
+              <label>Notes</label>
+              <textarea rows="3" value={editOfferingForm.notes} onChange={handleEditChange('notes')} />
+            </div>
+            {editingOffering?.recordedByName && (
+              <div className="form-field" style={{ color: '#666', fontSize: '0.9em' }}>
+                <label>Recorded By</label>
+                <p style={{ margin: '8px 0 0', color: '#333' }}>{editingOffering.recordedByName}</p>
+              </div>
+            )}
+            <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+              <button className="button-primary" type="submit">Save changes</button>
+              <button type="button" onClick={cancelEditOffering}>Cancel</button>
+            </div>
+          </form>
         </div>
       )}
     </div>

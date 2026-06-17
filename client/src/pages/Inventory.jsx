@@ -98,6 +98,7 @@ function Inventory() {
               <th>Item</th>
               <th>Qty</th>
               <th>Storage</th>
+              <th>Recorded By</th>
               <th>Action</th>
             </tr>
           </thead>
@@ -108,6 +109,7 @@ function Inventory() {
                 <td>{record.item}</td>
                 <td>{record.qty}</td>
                 <td>{record.storage}</td>
+                <td style={{ fontSize: '0.9em', color: '#666' }}>{record.recordedByName || 'Admin'}</td>
                 <td style={{ position: 'relative' }}>
                   <button type="button" className="action-button" onClick={() => toggleActionMenu(record.id)}>
                     Action

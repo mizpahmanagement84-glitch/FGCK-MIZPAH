@@ -1,4 +1,5 @@
 const express = require('express');
+const { attachRecordedBy } = require('../utils/audit');
 const { readData, writeData } = require('../db');
 const authMiddleware = require('../middleware/auth');
 
@@ -29,9 +30,29 @@ router.post('/', async (req, res) => {
     transactionType,
     createdAt: new Date().toISOString()
   };
-  data.departmentTransactions.push(newTransaction);
+  const recordedTransaction = attachRecordedBy(newTransaction, req, data);
+  data.departmentTransactions.push(recordedTransaction);
   await writeData(data);
-  res.json(newTransaction);
+  res.json(recordedTransaction);
+});
+
+router.put('/:id', async (req, res) => {
+  const { department, amount, date, transactionType } = req.body;
+  const data = await readData();
+  if (!data.departmentTransactions) {
+    data.departmentTransactions = [];
+  }
+  const transaction = data.departmentTransactions.find((item) => item.id === Number(req.params.id));
+  if (!transaction) {
+    return res.status(404).json({ error: 'Transaction not found' });
+  }
+  transaction.department = department || transaction.department;
+  transaction.amount = amount !== undefined ? Number(amount) : transaction.amount;
+  transaction.date = date ? new Date(date).toISOString() : transaction.date;
+  transaction.transactionType = transactionType || transaction.transactionType;
+  Object.assign(transaction, attachRecordedBy(transaction, req, data));
+  await writeData(data);
+  res.json({ success: true });
 });
 
 router.delete('/:id', async (req, res) => {

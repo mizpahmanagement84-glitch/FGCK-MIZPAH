@@ -16,7 +16,7 @@
       "name": "web",
       "type": "web",
       "dockerfilePath": "./Dockerfile",
-      "startCommand": "npm --workspace server run start",
+      "startCommand": "npm run start:prod",
       "env": [
         "DATABASE_URL",
         "JWT_SECRET",

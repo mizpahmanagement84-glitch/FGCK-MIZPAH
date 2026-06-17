@@ -15,6 +15,7 @@ const expensesRoutes = require('./routes/expenses');
 const departmentsRoutes = require('./routes/departments');
 const departmentTransactionsRoutes = require('./routes/department-transactions');
 const bulkSmsRoutes = require('./routes/bulk-sms');
+const welfareRoutes = require('./routes/welfare');
 const { initDatabase } = require('./db');
 
 dotenv.config();
@@ -26,7 +27,7 @@ const port = process.env.PORT || 4000;
 console.log('Environment:', {
   NODE_ENV: process.env.NODE_ENV,
   PORT: port,
-  DATABASE_URL: process.env.DATABASE_URL ? '[SET]' : '[NOT SET]',
+  DATABASE_URL: process.env.DATABASE_URL ? '[SEpostgresql://FGCK MIZPAH:Mizpah123@localhost:5432/mizpah_dbT]' : '[NOT SET]',
   JWT_SECRET: process.env.JWT_SECRET ? '[SET]' : '[NOT SET]',
   CORS_ORIGIN: process.env.CORS_ORIGIN || 'not set'
 });
@@ -46,6 +47,7 @@ app.use('/api/expenses', expensesRoutes);
 app.use('/api/departments', departmentsRoutes);
 app.use('/api/department-transactions', departmentTransactionsRoutes);
 app.use('/api/bulk-sms', bulkSmsRoutes);
+app.use('/api/welfare', welfareRoutes);
 
 if (process.env.NODE_ENV === 'production') {
   const clientBuildPath = path.join(__dirname, '..', 'client', 'dist');

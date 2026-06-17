@@ -9,6 +9,7 @@ import MyProject from './pages/MyProject';
 import Givings from './pages/Givings';
 import Expenses from './pages/Expenses';
 import Reports from './pages/Reports';
+import Welfare from './pages/Welfare';
 import Projects from './pages/Projects';
 import Attendance from './pages/Attendance';
 import Inventory from './pages/Inventory';
@@ -78,6 +79,7 @@ function App() {
                     <Route path="export" element={<ExportPage />} />
                     <Route path="bulk-sms" element={<BulkSMS />} />
                     <Route path="reports" element={<Reports />} />
+                    <Route path="welfare" element={<Welfare />} />
                     <Route path="" element={<Navigate to="dashboard" replace />} />
                   </Routes>
                 </main>

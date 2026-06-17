@@ -135,7 +135,7 @@ function Projects() {
                 <label>Member</label>
                 <select value={form.memberId} onChange={handleChange('memberId')} required>
                   <option value="">Select member</option>
-                  {members.map((member) => (
+                  {[...members].sort((a, b) => `${a.firstName} ${a.lastName}`.localeCompare(`${b.firstName} ${b.lastName}`)).map((member) => (
                     <option key={member.id} value={member.id}>
                       {member.firstName}{member.memberNumber ? ` (${member.memberNumber})` : ''}
                     </option>
@@ -172,7 +172,7 @@ function Projects() {
                 <label>Member</label>
                 <select value={editingForm.memberId} onChange={handleEditChange('memberId')} required>
                   <option value="">Select member</option>
-                  {members.map((member) => (
+                  {[...members].sort((a, b) => `${a.firstName} ${a.lastName}`.localeCompare(`${b.firstName} ${b.lastName}`)).map((member) => (
                     <option key={member.id} value={member.id}>
                       {member.firstName}{member.memberNumber ? ` (${member.memberNumber})` : ''}
                     </option>
@@ -225,6 +225,7 @@ function Projects() {
                         <th>Member</th>
                         <th>Amount</th>
                         <th>Date</th>
+                        <th>Recorded By</th>
                         <th>Action</th>
                       </tr>
                     </thead>
@@ -235,6 +236,7 @@ function Projects() {
                           <td>{project.memberName || 'Unknown'}</td>
                           <td>{formatCurrency(project.amount)}</td>
                           <td>{new Date(project.date).toLocaleDateString()}</td>
+                          <td style={{ fontSize: '0.9em', color: '#666' }}>{project.recordedByName || 'Admin'}</td>
                           <td style={{ position: 'relative' }}>
                             <button
                               type="button"

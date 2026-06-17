@@ -44,10 +44,10 @@ router.post('/', async (req, res) => {
   const newMember = {
     id: ++data.lastMemberId,
     memberNumber: buildMemberNumber(data),
-    firstName,
-    lastName,
-    phone,
-    email,
+    firstName: firstName || '',
+    lastName: lastName || '',
+    phone: phone || '',
+    email: email || '',
     title: allowedTitles.includes(title) ? title : '',
     group: group || 'all',
     joinedAt: joinedAt ? new Date(joinedAt).toISOString() : new Date().toISOString(),
@@ -71,14 +71,14 @@ router.put('/:id', async (req, res) => {
   if (!req.user || req.user.role !== 'pastor') {
     return res.status(403).json({ error: 'Forbidden' });
   }
-  member.firstName = firstName;
-  member.lastName = lastName;
-  member.phone = phone;
-  member.email = email;
+  member.firstName = firstName || member.firstName || '';
+  member.lastName = lastName || member.lastName || '';
+  member.phone = phone || member.phone || '';
+  member.email = email || member.email || '';
   member.title = allowedTitles.includes(title) ? title : member.title || '';
   member.group = group || member.group || 'all';
   member.joinedAt = joinedAt ? new Date(joinedAt).toISOString() : member.joinedAt;
-  member.notes = notes || '';
+  member.notes = notes || member.notes || '';
   member.gender = gender || member.gender || 'male';
   await writeData(data);
   res.json({ success: true });

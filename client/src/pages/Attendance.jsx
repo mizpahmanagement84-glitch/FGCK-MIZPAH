@@ -225,6 +225,7 @@ function Attendance() {
                         <th>Teens</th>
                         <th>Sunday school</th>
                         <th>Total</th>
+                        <th>Recorded By</th>
                         <th>Action</th>
                       </tr>
                     </thead>
@@ -236,6 +237,7 @@ function Attendance() {
                           <td>{group.teens || ''}</td>
                           <td>{group.sundaySchool || ''}</td>
                           <td>{group.total}</td>
+                          <td style={{ fontSize: '0.9em', color: '#666' }}>{group.recordedByName || 'Admin'}</td>
                           <td style={{ position: 'relative' }}>
                             <button
                               type="button"

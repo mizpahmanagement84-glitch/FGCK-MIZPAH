@@ -77,7 +77,7 @@ function Login({ onLogin }) {
   };
 
   const getPasswordPlaceholder = () => {
-    if (selectedRole === 'member') {
+    if (selectedRole === 'member' || selectedRole === 'elder') {
       return 'Last 3 digits of member number';
     }
     return 'password';
@@ -134,7 +134,7 @@ function Login({ onLogin }) {
     if (selectedRole === 'member') {
       return 'Member first name';
     } else if (selectedRole === 'elder') {
-      return 'Elder';
+      return 'Elder first name';
     }
     return 'Username';
   };
@@ -202,9 +202,14 @@ function Login({ onLogin }) {
                         placeholder={getPasswordPlaceholder()}
                         required
                       />
+                      {(selectedRole === 'member' || selectedRole === 'elder') && (
+                        <small style={{ display: 'block', marginTop: 4, color: '#6b7280' }}>
+                          Use the last 3 digits of your membership number for first-time login.
+                        </small>
+                      )}
                     </div>
                     <button className="button-primary" type="submit">Sign in</button>
-                    {selectedRole === 'member' && (
+                    {selectedRole === 'elder' && (
                       <button
                         type="button"
                         className="button-secondary"
@@ -226,7 +231,7 @@ function Login({ onLogin }) {
                 ) : (
                   <form onSubmit={resetStage === 'request' ? handleForgotPasswordRequest : handleResetPassword}>
                     <div style={{ marginBottom: '16px', padding: '12px', backgroundColor: '#e3f2fd', borderRadius: '4px', textAlign: 'center' }}>
-                      <strong>Member password recovery</strong>
+                      <strong>Elder password recovery</strong>
                     </div>
                     <div className="form-field">
                       <label>Username</label>

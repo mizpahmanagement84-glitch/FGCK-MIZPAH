@@ -135,20 +135,20 @@ async function writeData(data) {
     await insertRows('admins', data.admins || []);
     await insertRows('members', (data.members || []).map((member) => ({
       id: member.id,
-      member_number: member.memberNumber,
-      first_name: member.firstName,
-      last_name: member.lastName,
-      phone: member.phone,
-      email: member.email,
-      title: member.title,
-      group_name: member.group,
-      joined_at: member.joinedAt,
-      notes: member.notes,
-      gender: member.gender,
-      password: member.password,
-      recovery_email: member.recoveryEmail,
-      password_reset_otp: member.passwordResetOtp,
-      password_reset_otp_expiry: member.passwordResetOtpExpiry
+      member_number: member.memberNumber || `MIZ-26/${Math.floor(100 + Math.random() * 900)}`,
+      first_name: member.firstName || '',
+      last_name: member.lastName || '',
+      phone: member.phone || '',
+      email: member.email || '',
+      title: member.title || '',
+      group_name: member.group || 'all',
+      joined_at: member.joinedAt || new Date().toISOString(),
+      notes: member.notes || '',
+      gender: member.gender || 'male',
+      password: member.password || '',
+      recovery_email: member.recoveryEmail || '',
+      password_reset_otp: member.passwordResetOtp || '',
+      password_reset_otp_expiry: member.passwordResetOtpExpiry || null
     })));
     await insertRows('givings', (data.givings || []).map((item) => ({
       id: item.id,

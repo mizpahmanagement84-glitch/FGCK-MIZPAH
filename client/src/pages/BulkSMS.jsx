@@ -187,7 +187,7 @@ function BulkSMS() {
               {members.length === 0 ? (
                 <p>No members available.</p>
               ) : (
-                members.map((member) => (
+                [...members].sort((a, b) => `${a.firstName} ${a.lastName}`.localeCompare(`${b.firstName} ${b.lastName}`)).map((member) => (
                   <label key={member.id} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                     <input
                       type="checkbox"

@@ -6,7 +6,7 @@ function NavBar({ user, onLogout }) {
     <aside className="navbar">
       <div>
         <h2>Mizpah {role === 'elder' ? 'Elder' : 'Admin'}</h2>
-        <p>Welcome, {user?.username || 'Admin'}</p>
+        <p>Welcome {role === 'pastor' ? 'Pastor Robert' : `, ${user?.username || 'Admin'}`}</p>
       </div>
 
       <nav className="nav-links">

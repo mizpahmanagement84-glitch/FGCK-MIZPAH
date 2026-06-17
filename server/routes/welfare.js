@@ -1,5 +1,4 @@
 const express = require('express');
-const { attachRecordedBy } = require('../utils/audit');
 const { readData, writeData } = require('../db');
 const authMiddleware = require('../middleware/auth');
 
@@ -46,10 +45,9 @@ router.post('/', async (req, res) => {
     amount: Number(amount),
     date: date || new Date().toISOString()
   };
-  const recordedEntry = attachRecordedBy(entry, req, data);
-  data.welfare.push(recordedEntry);
+  data.welfare.push(entry);
   await writeData(data);
-  res.json(recordedEntry);
+  res.json(entry);
 });
 
 module.exports = router;

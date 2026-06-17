@@ -1,5 +1,4 @@
 const express = require('express');
-const { attachRecordedBy } = require('../utils/audit');
 const { readData, writeData } = require('../db');
 const authMiddleware = require('../middleware/auth');
 
@@ -28,10 +27,9 @@ router.post('/', async (req, res) => {
     storage
   };
 
-  const recordedRecord = attachRecordedBy(newRecord, req, data);
-  data.inventory.push(recordedRecord);
+  data.inventory.push(newRecord);
   await writeData(data);
-  res.json(recordedRecord);
+  res.json(newRecord);
 });
 
 router.put('/:id', async (req, res) => {
@@ -46,7 +44,6 @@ router.put('/:id', async (req, res) => {
   record.item = item || record.item;
   record.qty = qty !== undefined ? Number(qty) : record.qty;
   record.storage = storage || record.storage;
-  Object.assign(record, attachRecordedBy(record, req, data));
 
   await writeData(data);
   res.json({ success: true });

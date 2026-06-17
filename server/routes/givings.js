@@ -1,4 +1,5 @@
 const express = require('express');
+const { attachRecordedBy } = require('../utils/audit');
 const { readData, writeData } = require('../db');
 const authMiddleware = require('../middleware/auth');
 
@@ -61,7 +62,7 @@ router.post('/', async (req, res) => {
     category: category || 'General',
     notes: notes || ''
   };
-  const recordedGiving = newGiving;
+  const recordedGiving = attachRecordedBy(newGiving, req, data);
   data.givings.push(recordedGiving);
   await writeData(data);
   res.json(recordedGiving);
@@ -79,7 +80,7 @@ router.put('/:id', async (req, res) => {
   giving.givingDate = givingDate;
   giving.category = category || 'General';
   giving.notes = notes || '';
-
+  Object.assign(giving, attachRecordedBy(giving, req, data));
   await writeData(data);
   res.json({ success: true });
 });

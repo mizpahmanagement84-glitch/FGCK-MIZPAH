@@ -1,4 +1,5 @@
 const express = require('express');
+const { attachRecordedBy } = require('../utils/audit');
 const { readData, writeData } = require('../db');
 const authMiddleware = require('../middleware/auth');
 
@@ -41,7 +42,7 @@ router.post('/', async (req, res) => {
     date
   };
 
-  const recordedProject = newProject;
+  const recordedProject = attachRecordedBy(newProject, req, data);
   data.projects.push(recordedProject);
   await writeData(data);
   res.json(recordedProject);
@@ -60,6 +61,7 @@ router.put('/:id', async (req, res) => {
   project.memberId = memberId ? Number(memberId) : project.memberId;
   project.amount = amount ? Number(amount) : project.amount;
   project.date = date || project.date;
+  Object.assign(project, attachRecordedBy(project, req, data));
 
   await writeData(data);
   res.json({ success: true });

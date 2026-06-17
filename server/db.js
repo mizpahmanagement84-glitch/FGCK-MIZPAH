@@ -122,8 +122,14 @@ async function writeData(data) {
       if (!Array.isArray(rows) || rows.length === 0) {
         return;
       }
+      
+      // Filter out recorded_by audit columns that may not exist in all tables
+      const auditColumns = ['recordedBy', 'recordedByName', 'recordedByMemberNumber', 'recordedByUserId', 'recorded_by', 'recorded_by_name', 'recorded_by_member_number', 'recorded_by_user_id'];
+      
       for (const row of rows) {
-        const insert = buildInsertStatement(table, Object.keys(row), row);
+        const cleanRow = { ...row };
+        auditColumns.forEach(col => delete cleanRow[col]);
+        const insert = buildInsertStatement(table, Object.keys(cleanRow), cleanRow);
         await client.query(insert.text, insert.values);
       }
       const maxId = Math.max(...rows.map((row) => Number(row.id)));

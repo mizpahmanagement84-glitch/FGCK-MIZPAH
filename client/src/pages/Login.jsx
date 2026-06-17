@@ -100,6 +100,22 @@ function Login({ onLogin }) {
     }
   };
 
+  const handleResendOtp = async (e) => {
+    e?.preventDefault?.();
+    setError('');
+    if (!username.trim() || !recoveryEmail.trim()) {
+      return setError('Username and recovery email are required');
+    }
+    try {
+      await client.post('/auth/forgot-password', { username: username.trim(), email: recoveryEmail.trim() });
+      setError('OTP resent to your recovery email.');
+    } catch (err) {
+      const status = err.response?.status;
+      const message = err.response?.data?.error || err.message || 'Unable to resend OTP';
+      setError(status ? `${status}: ${message}` : message);
+    }
+  };
+
   const handleResetPassword = async (e) => {
     e.preventDefault();
     setError('');
@@ -132,9 +148,9 @@ function Login({ onLogin }) {
 
   const getUsernamePlaceholder = () => {
     if (selectedRole === 'member') {
-      return 'Member first name';
+      return 'Member first name or number';
     } else if (selectedRole === 'elder') {
-      return 'Elder first name';
+      return 'Elder first name or number';
     }
     return 'Username';
   };
@@ -209,7 +225,7 @@ function Login({ onLogin }) {
                       )}
                     </div>
                     <button className="button-primary" type="submit">Sign in</button>
-                    {selectedRole === 'elder' && (
+                    {selectedRole !== 'pastor' && (
                       <button
                         type="button"
                         className="button-secondary"
@@ -231,7 +247,7 @@ function Login({ onLogin }) {
                 ) : (
                   <form onSubmit={resetStage === 'request' ? handleForgotPasswordRequest : handleResetPassword}>
                     <div style={{ marginBottom: '16px', padding: '12px', backgroundColor: '#e3f2fd', borderRadius: '4px', textAlign: 'center' }}>
-                      <strong>Elder password recovery</strong>
+                      <strong>Password recovery</strong>
                     </div>
                     <div className="form-field">
                       <label>Username</label>
@@ -281,7 +297,17 @@ function Login({ onLogin }) {
                             required
                           />
                         </div>
-                        <button className="button-primary" type="submit">Reset password</button>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 8 }}>
+                          <button className="button-primary" type="submit">Reset password</button>
+                          <button
+                            type="button"
+                            className="button-secondary"
+                            onClick={handleResendOtp}
+                            style={{ width: '100%' }}
+                          >
+                            Resend OTP
+                          </button>
+                        </div>
                       </>
                     )}
                     {resetStage === 'request' && (

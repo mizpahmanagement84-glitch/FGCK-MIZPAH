@@ -1,10 +1,36 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const nodemailer = require('nodemailer');
 const { readData, writeData } = require('../db');
 const authMiddleware = require('../middleware/auth');
 
 const router = express.Router();
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.GMAIL_USER,
+    pass: process.env.GMAIL_PASS
+  }
+});
+
+async function sendOtpEmail(to, otp) {
+  if (!process.env.GMAIL_USER || !process.env.GMAIL_PASS) {
+    console.warn('GMAIL_USER and GMAIL_PASS are not configured. OTP email will not be sent.');
+    return false;
+  }
+
+  const mailOptions = {
+    from: process.env.GMAIL_USER,
+    to,
+    subject: 'Mizpah Password Recovery OTP',
+    text: `Your OTP for Mizpah password recovery is: ${otp}\n\nIf you did not request this, please ignore this email.`
+  };
+
+  await transporter.sendMail(mailOptions);
+  return true;
+}
 
 const normalize = (value) => (value || '').trim().toLowerCase();
 
@@ -15,7 +41,14 @@ const findMemberByUsername = (data, username) => {
   return data.members.find((m) => {
     const normalizedMemberName = normalize(m.firstName);
     const firstNamePart = normalizedMemberName.split(' ')[0];
-    return normalizedMemberName === normalizedUsername || firstNamePart === normalizedUsername;
+    const normalizedMemberNumber = normalize(m.memberNumber);
+    const normalizedEmail = normalize(m.email);
+    const normalizedRecoveryEmail = normalize(m.recoveryEmail);
+    return normalizedMemberName === normalizedUsername
+      || firstNamePart === normalizedUsername
+      || normalizedMemberNumber === normalizedUsername
+      || normalizedEmail === normalizedUsername
+      || normalizedRecoveryEmail === normalizedUsername;
   });
 };
 
@@ -55,12 +88,8 @@ router.post('/login', async (req, res) => {
     return res.json({ token, user: { id: admin.id, username: admin.username, role: admin.role } });
   }
 
-  // Otherwise check members by first name or full name
-  const member = data.members.find((m) => {
-    const normalizedMemberName = (m.firstName || '').trim().toLowerCase();
-    const firstNamePart = normalizedMemberName.split(' ')[0];
-    return normalizedMemberName === normalizedUsername || firstNamePart === normalizedUsername;
-  });
+  // Otherwise check members by first name, member number, or recovery email
+  const member = findMemberByUsername(data, username);
   if (!member) return res.status(401).json({ error: 'Invalid credentials' });
 
   const memberRole = isElderMember(member) ? 'elder' : 'member';
@@ -96,14 +125,25 @@ router.post('/forgot-password', async (req, res) => {
   }
   const data = await readData();
   const member = findMemberByUsername(data, username);
-  if (!member || !isElderMember(member) || getMemberEmail(member) !== normalize(email)) {
-    return res.status(404).json({ error: 'Elder not found with provided email' });
+  if (!member || getMemberEmail(member) !== normalize(email)) {
+    return res.status(404).json({ error: 'Member not found with provided email' });
   }
   const otp = generateOtp();
   member.passwordResetOtp = otp;
   member.passwordResetOtpExpiry = Date.now() + 15 * 60 * 1000;
   await writeData(data);
-  console.log(`Password reset OTP for ${member.firstName} <${member.email}>: ${otp}`);
+
+  let emailSent = false;
+  try {
+    emailSent = await sendOtpEmail(member.email || member.recoveryEmail, otp);
+  } catch (err) {
+    console.error('Failed to send OTP email:', err);
+  }
+
+  if (!emailSent) {
+    return res.status(500).json({ error: 'Unable to send OTP email. Please contact support.' });
+  }
+
   return res.json({ success: true, message: 'OTP sent to recovery email' });
 });
 
@@ -117,8 +157,8 @@ router.post('/reset-password', async (req, res) => {
   }
   const data = await readData();
   const member = findMemberByUsername(data, username);
-  if (!member || !isElderMember(member) || getMemberEmail(member) !== normalize(email)) {
-    return res.status(404).json({ error: 'Elder not found with provided email' });
+  if (!member || getMemberEmail(member) !== normalize(email)) {
+    return res.status(404).json({ error: 'Member not found with provided email' });
   }
   if (!member.passwordResetOtp || member.passwordResetOtp !== otp || !member.passwordResetOtpExpiry || Date.now() > member.passwordResetOtpExpiry) {
     return res.status(400).json({ error: 'Invalid or expired OTP' });

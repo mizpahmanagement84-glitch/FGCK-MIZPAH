@@ -6,6 +6,7 @@ const router = express.Router();
 router.use(authMiddleware);
 
 router.get('/', async (req, res) => {
+  // Fetch all attendance records
   const data = await readData();
   res.json(data.attendance || []);
 });

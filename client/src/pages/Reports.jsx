@@ -253,7 +253,7 @@ function Reports() {
                           <td>{tithe.firstName || 'Unknown'}</td>
                           <td>{formatCurrency(tithe.amount)}</td>
                           <td>{new Date(tithe.givingDate).toLocaleDateString()}</td>
-                          <td style={{ fontSize: '0.9em', color: '#666' }}>{tithe.recordedByName || 'Admin'}</td>
+                          <td style={{ fontSize: '0.9em', color: '#666' }}>{formatRecordedBy(tithe)}</td>
                           <td style={{ position: 'relative' }}>
                             <button
                               type="button"
@@ -358,7 +358,7 @@ function Reports() {
                         <td>{tithe.memberName}</td>
                         <td>{new Date(tithe.givingDate).toLocaleDateString()}</td>
                         <td>{formatCurrency(tithe.amount)}</td>
-                        <td style={{ fontSize: '0.9em', color: '#666' }}>{tithe.recordedByName || 'Admin'}</td>
+                        <td style={{ fontSize: '0.9em', color: '#666' }}>{formatRecordedBy(tithe)}</td>
                       </tr>
                     ))}
                   </tbody>

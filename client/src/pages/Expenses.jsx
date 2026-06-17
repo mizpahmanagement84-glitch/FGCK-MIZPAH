@@ -10,6 +10,15 @@ function Expenses() {
   const [actionType, setActionType] = useState(null); // 'edit' or 'delete'
   const [editingRecord, setEditingRecord] = useState(null);
   const [editingForm, setEditingForm] = useState({ expense: '', amount: '', date: '' });
+  const role = localStorage.getItem('role');
+
+  const formatRecordedBy = (record) => {
+    const name = record?.recordedByName || 'Admin';
+    if (role === 'pastor' && record?.recordedByMemberNumber) {
+      return `${name} (${record.recordedByMemberNumber})`;
+    }
+    return name;
+  };
 
   useEffect(() => {
     const loadData = async () => {
@@ -293,7 +302,7 @@ function Expenses() {
                                   <td key={expenseName}>{group.expenses[expenseName] || ''}</td>
                                 ))}
                                 <td>{group.total}</td>
-                                <td style={{ fontSize: '0.9em', color: '#666' }}>{group.records[0]?.recordedByName || 'Admin'}</td>
+                                <td style={{ fontSize: '0.9em', color: '#666' }}>{formatRecordedBy(group.records[0])}</td>
                                 <td style={{ position: 'relative' }}>
                                   <button
                                     type="button"

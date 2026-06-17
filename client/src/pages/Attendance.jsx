@@ -7,6 +7,15 @@ function Attendance() {
   const [showForm, setShowForm] = useState(true);
   const [actionMenuId, setActionMenuId] = useState(null);
   const [expandedMonths, setExpandedMonths] = useState({});
+  const role = localStorage.getItem('role');
+
+  const formatRecordedBy = (record) => {
+    const name = record?.recordedByName || 'Admin';
+    if (role === 'pastor' && record?.recordedByMemberNumber) {
+      return `${name} (${record.recordedByMemberNumber})`;
+    }
+    return name;
+  };
 
   useEffect(() => {
     const loadAttendance = async () => {
@@ -237,7 +246,7 @@ function Attendance() {
                           <td>{group.teens || ''}</td>
                           <td>{group.sundaySchool || ''}</td>
                           <td>{group.total}</td>
-                          <td style={{ fontSize: '0.9em', color: '#666' }}>{group.recordedByName || 'Admin'}</td>
+                          <td style={{ fontSize: '0.9em', color: '#666' }}>{formatRecordedBy(group.records[0])}</td>
                           <td style={{ position: 'relative' }}>
                             <button
                               type="button"

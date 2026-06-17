@@ -14,6 +14,14 @@ function Projects() {
   const [editError, setEditError] = useState('');
   const role = localStorage.getItem('role') || '';
 
+  const formatRecordedBy = (record) => {
+    const name = record?.recordedByName || 'Admin';
+    if (role === 'pastor' && record?.recordedByMemberNumber) {
+      return `${name} (${record.recordedByMemberNumber})`;
+    }
+    return name;
+  };
+
   useEffect(() => {
     const loadData = async () => {
       const [membersRes, projectsRes] = await Promise.all([
@@ -236,7 +244,7 @@ function Projects() {
                           <td>{project.memberName || 'Unknown'}</td>
                           <td>{formatCurrency(project.amount)}</td>
                           <td>{new Date(project.date).toLocaleDateString()}</td>
-                          <td style={{ fontSize: '0.9em', color: '#666' }}>{project.recordedByName || 'Admin'}</td>
+                          <td style={{ fontSize: '0.9em', color: '#666' }}>{formatRecordedBy(project)}</td>
                           <td style={{ position: 'relative' }}>
                             <button
                               type="button"

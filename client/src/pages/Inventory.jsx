@@ -6,6 +6,15 @@ function Inventory() {
   const [form, setForm] = useState({ item: '', qty: '', storage: '' });
   const [showForm, setShowForm] = useState(true);
   const [actionMenuId, setActionMenuId] = useState(null);
+  const role = localStorage.getItem('role');
+
+  const formatRecordedBy = (record) => {
+    const name = record?.recordedByName || 'Admin';
+    if (role === 'pastor' && record?.recordedByMemberNumber) {
+      return `${name} (${record.recordedByMemberNumber})`;
+    }
+    return name;
+  };
 
   useEffect(() => {
     const loadInventory = async () => {
@@ -109,7 +118,7 @@ function Inventory() {
                 <td>{record.item}</td>
                 <td>{record.qty}</td>
                 <td>{record.storage}</td>
-                <td style={{ fontSize: '0.9em', color: '#666' }}>{record.recordedByName || 'Admin'}</td>
+                <td style={{ fontSize: '0.9em', color: '#666' }}>{formatRecordedBy(record)}</td>
                 <td style={{ position: 'relative' }}>
                   <button type="button" className="action-button" onClick={() => toggleActionMenu(record.id)}>
                     Action

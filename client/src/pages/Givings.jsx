@@ -16,6 +16,14 @@ function Givings() {
   const [actionMenuId, setActionMenuId] = useState(null);
   const role = localStorage.getItem('role');
 
+  const formatRecordedBy = (record) => {
+    const name = record?.recordedByName || 'Admin';
+    if (role === 'pastor' && record?.recordedByMemberNumber) {
+      return `${name} (${record.recordedByMemberNumber})`;
+    }
+    return name;
+  };
+
   const categories = [
     'Offering',
     'Mission',
@@ -321,7 +329,7 @@ function Givings() {
                                   <td key={it.id} style={{ textAlign: 'center', verticalAlign: 'middle' }}>{formatCurrency(it.amount)}</td>
                                 ))}
                                 <td style={{ verticalAlign: 'middle', fontSize: '0.9em', color: '#666' }}>
-                                  {itemsForDate[0]?.recordedByName ? `${itemsForDate[0].recordedByName}` : 'Admin'}
+                                  {formatRecordedBy(itemsForDate[0])}
                                 </td>
                                 <td style={{ position: 'relative' }}>
                                   <button
@@ -412,10 +420,10 @@ function Givings() {
               <label>Notes</label>
               <textarea rows="3" value={editOfferingForm.notes} onChange={handleEditChange('notes')} />
             </div>
-            {editingOffering?.recordedByName && (
+            {(editingOffering?.recordedByName || editingOffering?.recordedByMemberNumber) && (
               <div className="form-field" style={{ color: '#666', fontSize: '0.9em' }}>
                 <label>Recorded By</label>
-                <p style={{ margin: '8px 0 0', color: '#333' }}>{editingOffering.recordedByName}</p>
+                <p style={{ margin: '8px 0 0', color: '#333' }}>{formatRecordedBy(editingOffering)}</p>
               </div>
             )}
             <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>

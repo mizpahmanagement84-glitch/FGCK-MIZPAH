@@ -19,6 +19,15 @@ function Departments() {
     transactionType: 'deposit'
   });
   const [activeActionMenuId, setActiveActionMenuId] = useState(null);
+  const role = localStorage.getItem('role');
+
+  const formatRecordedBy = (record) => {
+    const name = record?.recordedByName || 'Admin';
+    if (role === 'pastor' && record?.recordedByMemberNumber) {
+      return `${name} (${record.recordedByMemberNumber})`;
+    }
+    return name;
+  };
 
   const departmentOptions = ['Men', 'Ladies', 'Youth', 'Teens', 'Sunday School', 'Choir', 'Praise & Worship', 'Intercessory', 'Welfare'];
 
@@ -291,7 +300,7 @@ function Departments() {
                           <td style={{ fontWeight: 'bold', color: transaction.balance >= 0 ? '#27ae60' : '#e74c3c' }}>
                             {formatNumber(transaction.balance).toFixed(2)}
                           </td>
-                          <td style={{ fontSize: '0.9em', color: '#666' }}>{transaction.recordedByName || 'Admin'}</td>
+                          <td style={{ fontSize: '0.9em', color: '#666' }}>{formatRecordedBy(transaction)}</td>
                           <td style={{ position: 'relative', minWidth: '120px' }}>
                             <div style={{ display: 'inline-block' }}>
                               <button

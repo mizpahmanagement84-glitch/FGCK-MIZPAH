@@ -194,7 +194,7 @@ export default function Welfare() {
                               </td>
                             <td style={{ textAlign: 'right' }}>{formatCurrency(it.amount)}</td>
                             <td style={{ textAlign: 'right' }}>{new Date(it.date).toLocaleDateString()}</td>
-                            <td style={{ fontSize: '0.9em', color: '#666' }}>{it.recordedByName || 'Admin'}</td>
+                            <td style={{ fontSize: '0.9em', color: '#666' }}>{formatRecordedBy(it)}</td>
                           </tr>
                         ))}
                       </tbody>

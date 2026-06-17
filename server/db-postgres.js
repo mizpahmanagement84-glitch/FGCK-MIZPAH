@@ -143,6 +143,21 @@ async function initDatabase() {
 
     console.log('✓ Database tables initialized');
 
+    // Add recorded_by columns if they don't exist (migration)
+    const tables = ['attendance', 'expenses', 'projects', 'inventory', 'welfare'];
+    for (const table of tables) {
+      try {
+        await query(`ALTER TABLE ${table} ADD COLUMN IF NOT EXISTS recorded_by TEXT`);
+        await query(`ALTER TABLE ${table} ADD COLUMN IF NOT EXISTS recorded_by_name TEXT`);
+        await query(`ALTER TABLE ${table} ADD COLUMN IF NOT EXISTS recorded_by_member_number TEXT`);
+        await query(`ALTER TABLE ${table} ADD COLUMN IF NOT EXISTS recorded_by_user_id INTEGER`);
+      } catch (e) {
+        // Columns might already exist, which is fine
+        console.log(`Note: Could not add recorded_by columns to ${table}:`, e.message);
+      }
+    }
+    console.log('✓ Database migration completed');
+
     const defaultAdmins = [
       {
         username: 'pastor',

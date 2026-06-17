@@ -27,7 +27,7 @@ const port = process.env.PORT || 4000;
 console.log('Environment:', {
   NODE_ENV: process.env.NODE_ENV,
   PORT: port,
-  DATABASE_URL: process.env.DATABASE_URL ? '[SEpostgresql://FGCK MIZPAH:Mizpah123@localhost:5432/mizpah_dbT]' : '[NOT SET]',
+  DATABASE_URL: process.env.DATABASE_URL ? '[SET]' : '[NOT SET]',
   JWT_SECRET: process.env.JWT_SECRET ? '[SET]' : '[NOT SET]',
   CORS_ORIGIN: process.env.CORS_ORIGIN || 'not set'
 });

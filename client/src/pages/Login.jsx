@@ -77,7 +77,7 @@ function Login({ onLogin }) {
   };
 
   const getPasswordPlaceholder = () => {
-    if (selectedRole === 'member' || selectedRole === 'elder') {
+    if (selectedRole === 'member') {
       return 'Last 3 digits of member number';
     }
     return 'password';
@@ -149,8 +149,6 @@ function Login({ onLogin }) {
   const getUsernamePlaceholder = () => {
     if (selectedRole === 'member') {
       return 'Member first name or number';
-    } else if (selectedRole === 'elder') {
-      return 'Elder first name or number';
     }
     return 'Username';
   };
@@ -174,14 +172,6 @@ function Login({ onLogin }) {
                     style={{ padding: '12px 24px', fontSize: '16px' }}
                   >
                     Pastor
-                  </button>
-                  <button
-                    type="button"
-                    className="button-primary"
-                    onClick={() => handleRoleSelect('elder')}
-                    style={{ padding: '12px 24px', fontSize: '16px' }}
-                  >
-                    Elder
                   </button>
                   <button
                     type="button"
@@ -218,7 +208,7 @@ function Login({ onLogin }) {
                         placeholder={getPasswordPlaceholder()}
                         required
                       />
-                      {(selectedRole === 'member' || selectedRole === 'elder') && (
+                      {selectedRole === 'member' && (
                         <small style={{ display: 'block', marginTop: 4, color: '#6b7280' }}>
                           Use the last 3 digits of your membership number for first-time login.
                         </small>

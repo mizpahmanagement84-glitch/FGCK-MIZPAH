@@ -19,10 +19,14 @@ function Attendance() {
 
   useEffect(() => {
     const loadAttendance = async () => {
-      const response = await client.get('/attendance');
-      setRecords(response.data);
+      try {
+        const response = await client.get('/attendance');
+        setRecords(response.data);
+      } catch (error) {
+        console.error('Error loading attendance:', error);
+      }
     };
-    loadAttendance().catch(console.error);
+    loadAttendance();
   }, []);
 
   const handleChange = (field) => (event) => {
@@ -31,10 +35,15 @@ function Attendance() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    await client.post('/attendance', form);
-    setForm({ date: '', category: 'Adults', total: '' });
-    const response = await client.get('/attendance');
-    setRecords(response.data);
+    try {
+      await client.post('/attendance', form);
+      setForm({ date: '', category: 'Adults', total: '' });
+      const response = await client.get('/attendance');
+      setRecords(response.data);
+    } catch (error) {
+      console.error('Error saving attendance:', error);
+      window.alert(`Error saving attendance: ${error.response?.data?.error || error.message}`);
+    }
   };
 
   const toggleActionMenu = (id) => {
@@ -53,18 +62,28 @@ function Attendance() {
     const total = Number(totalInput);
     if (Number.isNaN(total)) return window.alert('Enter a valid total.');
 
-    await client.put(`/attendance/${record.id}`, { date, category, total });
-    setActionMenuId(null);
-    const response = await client.get('/attendance');
-    setRecords(response.data);
+    try {
+      await client.put(`/attendance/${record.id}`, { date, category, total });
+      setActionMenuId(null);
+      const response = await client.get('/attendance');
+      setRecords(response.data);
+    } catch (error) {
+      console.error('Error updating attendance:', error);
+      window.alert(`Error updating attendance: ${error.response?.data?.error || error.message}`);
+    }
   };
 
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this attendance record?')) return;
-    await client.delete(`/attendance/${id}`);
-    setActionMenuId(null);
-    const response = await client.get('/attendance');
-    setRecords(response.data);
+    try {
+      await client.delete(`/attendance/${id}`);
+      setActionMenuId(null);
+      const response = await client.get('/attendance');
+      setRecords(response.data);
+    } catch (error) {
+      console.error('Error deleting attendance:', error);
+      window.alert(`Error deleting attendance: ${error.response?.data?.error || error.message}`);
+    }
   };
 
   const getTodayString = () => {
@@ -129,21 +148,31 @@ function Attendance() {
       }
     };
 
-    await updateOrCreateCategory('Adults', adults);
-    await updateOrCreateCategory('Teens', teens);
-    await updateOrCreateCategory('Sunday school', sundaySchool);
+    try {
+      await updateOrCreateCategory('Adults', adults);
+      await updateOrCreateCategory('Teens', teens);
+      await updateOrCreateCategory('Sunday school', sundaySchool);
 
-    setActionMenuId(null);
-    const response = await client.get('/attendance');
-    setRecords(response.data);
+      setActionMenuId(null);
+      const response = await client.get('/attendance');
+      setRecords(response.data);
+    } catch (error) {
+      console.error('Error updating attendance records:', error);
+      window.alert(`Error updating attendance records: ${error.response?.data?.error || error.message}`);
+    }
   };
 
   const handleDeleteDateGroup = async (group) => {
     if (!window.confirm(`Delete all attendance records for ${group.date}?`)) return;
-    await Promise.all(group.records.map((record) => client.delete(`/attendance/${record.id}`)));
-    setActionMenuId(null);
-    const response = await client.get('/attendance');
-    setRecords(response.data);
+    try {
+      await Promise.all(group.records.map((record) => client.delete(`/attendance/${record.id}`)));
+      setActionMenuId(null);
+      const response = await client.get('/attendance');
+      setRecords(response.data);
+    } catch (error) {
+      console.error('Error deleting attendance records:', error);
+      window.alert(`Error deleting attendance records: ${error.response?.data?.error || error.message}`);
+    }
   };
 
   const formatDisplayDate = (value) => {

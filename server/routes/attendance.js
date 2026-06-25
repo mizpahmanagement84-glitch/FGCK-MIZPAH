@@ -25,7 +25,10 @@ router.post('/', async (req, res) => {
     id: ++data.lastAttendanceId,
     date,
     category,
-    total: Number(total)
+    total: Number(total),
+    recordedBy: req.user?.id || 'unknown',
+    recordedByName: req.user?.username || 'Admin',
+    recordedByMemberNumber: req.user?.memberNumber || null
   };
 
   data.attendance.push(record);
@@ -45,6 +48,10 @@ router.put('/:id', async (req, res) => {
   record.date = date || record.date;
   record.category = category || record.category;
   record.total = total !== undefined ? Number(total) : record.total;
+  // Update recorded by information on edit
+  record.recordedBy = req.user?.id || 'unknown';
+  record.recordedByName = req.user?.username || 'Admin';
+  record.recordedByMemberNumber = req.user?.memberNumber || null;
 
   await writeData(data);
   res.json({ success: true });

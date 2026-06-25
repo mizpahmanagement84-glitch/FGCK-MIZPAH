@@ -76,6 +76,8 @@ router.post('/login', async (req, res) => {
       admin.username.toLowerCase() === 'pastor' && password === 'password123'
     ) || (
       admin.username.toLowerCase() === 'elder' && password === 'Eldermizpah123'
+    ) || (
+      admin.username.toLowerCase() === 'secretary' && password === 'Mizpahsec123'
     );
 
     if (!passwordMatches && !fallbackMatch) {

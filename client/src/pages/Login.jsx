@@ -176,6 +176,14 @@ function Login({ onLogin }) {
                   <button
                     type="button"
                     className="button-primary"
+                    onClick={() => handleRoleSelect('secretary')}
+                    style={{ padding: '12px 24px', fontSize: '16px' }}
+                  >
+                    Secretary
+                  </button>
+                  <button
+                    type="button"
+                    className="button-primary"
                     onClick={() => handleRoleSelect('member')}
                     style={{ padding: '12px 24px', fontSize: '16px' }}
                   >

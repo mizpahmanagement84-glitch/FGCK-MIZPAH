@@ -170,6 +170,12 @@ async function initDatabase() {
         password: 'Eldermizpah123',
         role: 'elder',
         seedHash: '$2a$10$uRFJuYxGe/sQvVHZ7YkIr.9jF1w5oSVt8qj68.EVDswyvRsNf2F.FW'
+      },
+      {
+        username: 'MIZPAH',
+        password: 'Mizpahsec123',
+        role: 'secretary',
+        seedHash: '$2a$10$YQ7ukz7XMoUchVeNuCBIRuIBZbFjQhSOtpfCR9wjmDX21ok7I8kS'
       }
     ];
 
@@ -178,10 +184,11 @@ async function initDatabase() {
     if (adminCount === 0) {
       const values = [
         'pastor', bcrypt.hashSync('password123', 10), 'pastor',
-        'Elder', bcrypt.hashSync('Eldermizpah123', 10), 'elder'
+        'Elder', bcrypt.hashSync('Eldermizpah123', 10), 'elder',
+        'MIZPAH', bcrypt.hashSync('Mizpahsec123', 10), 'secretary'
       ];
       await query(
-        'INSERT INTO admins (username, password, role) VALUES ($1, $2, $3), ($4, $5, $6)',
+        'INSERT INTO admins (username, password, role) VALUES ($1, $2, $3), ($4, $5, $6), ($7, $8, $9)',
         values
       );
       console.log('✓ Admin users seeded');
@@ -195,6 +202,10 @@ async function initDatabase() {
             await query('UPDATE admins SET password = $1 WHERE id = $2', [updateHash, existing.id]);
             console.log(`✓ Updated default admin password for ${adminDef.username}`);
           }
+        } else {
+          const insertHash = bcrypt.hashSync(adminDef.password, 10);
+          await query('INSERT INTO admins (username, password, role) VALUES ($1, $2, $3)', [adminDef.username, insertHash, adminDef.role]);
+          console.log(`✓ Seeded missing admin user ${adminDef.username}`);
         }
       }
     }

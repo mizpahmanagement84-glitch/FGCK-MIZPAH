@@ -32,7 +32,7 @@ router.post('/', async (req, res) => {
   // Attach sessionId if secretary
   if (req.user?.role === 'secretary') {
     newRecord.sessionId = req.user?.sessionId || 'unknown';
-    newRecord.recordedByName = req.user?.recordedByName || req.user?.username || 'Admin';
+    newRecord.recordedByName = req.user?.recordedByName || 'Secretary';
   }
 
   data.inventory.push(newRecord);
@@ -56,7 +56,7 @@ router.put('/:id', async (req, res) => {
   // Attach sessionId if secretary
   if (req.user?.role === 'secretary') {
     record.sessionId = req.user?.sessionId || 'unknown';
-    record.recordedByName = req.user?.recordedByName || req.user?.username || 'Admin';
+    record.recordedByName = req.user?.recordedByName || 'Secretary';
   }
 
   await writeData(data);

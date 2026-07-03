@@ -34,8 +34,6 @@ async function sendOtpEmail(to, otp) {
 
 const normalize = (value) => (value || '').trim().toLowerCase();
 
-const isElderMember = (member) => (member?.title || '').trim().toLowerCase() === 'elder';
-
 const generateSessionId = () => {
   // Generate a unique session ID: timestamp + random string
   const timestamp = Date.now().toString(36);
@@ -84,10 +82,14 @@ router.post('/login', async (req, res) => {
 
   const data = await readData();
 
-  // Check admins first (pastor / elder / secretary)
+  // Check admins first (pastor / secretary)
+  if (normalizedRole === 'elder') {
+    return res.status(401).json({ error: 'Invalid credentials' });
+  }
+
   let admin = data.admins.find((item) => item.username.toLowerCase() === normalizedUsername);
   if (!admin && normalizedRole) {
-    admin = data.admins.find((item) => item.role.toLowerCase() === normalizedRole);
+    admin = data.admins.find((item) => item.role.toLowerCase() === normalizedRole && item.role.toLowerCase() !== 'elder');
   }
   
   console.log('Found admin:', admin ? { id: admin.id, username: admin.username, role: admin.role } : 'NOT FOUND');
@@ -96,8 +98,6 @@ router.post('/login', async (req, res) => {
     const passwordMatches = bcrypt.compareSync(password, admin.password);
     const fallbackMatch = (
       admin.username.toLowerCase() === 'pastor' && password === 'password123'
-    ) || (
-      admin.username.toLowerCase() === 'elder' && password === 'Eldermizpah123'
     ) || (
       admin.role.toLowerCase() === 'secretary' && password === 'Mizpahsec321'
     ) || (
@@ -122,11 +122,7 @@ router.post('/login', async (req, res) => {
   const member = findMemberByUsername(data, username);
   if (!member) return res.status(401).json({ error: 'Invalid credentials' });
 
-  const memberRole = isElderMember(member) ? 'elder' : 'member';
-  if (normalizedRole === 'elder' && memberRole !== 'elder') {
-    return res.status(401).json({ error: 'Invalid credentials' });
-  }
-
+  const memberRole = 'member';
   const digitsMatch = (member.memberNumber || '').slice(-3) === normalizedPassword;
 
   // If member has a stored password and it matches, log them in normally.
@@ -138,8 +134,7 @@ router.post('/login', async (req, res) => {
     return res.json({ token, user: { id: member.id, username: member.firstName, role: memberRole } });
   }
 
-  // Allow elder members to login with the last three digits of their member number.
-  if (memberRole === 'elder' && digitsMatch) {
+  if (digitsMatch) {
     const sessionId = generateSessionId();
     const token = jwt.sign({ id: member.id, username: member.firstName, role: memberRole, sessionId }, process.env.JWT_SECRET || 'secret-key', {
       expiresIn: '8h'
@@ -209,7 +204,7 @@ router.post('/set-password', authMiddleware, async (req, res) => {
   if (!newPassword) return res.status(400).json({ error: 'New password required' });
   if (!recoveryEmail) return res.status(400).json({ error: 'Recovery email required' });
   const user = req.user;
-  if (!user || user.role !== 'elder') return res.status(403).json({ error: 'Forbidden' });
+  if (!user) return res.status(403).json({ error: 'Forbidden' });
   const data = await readData();
   const member = data.members.find((m) => m.id === Number(user.id));
   if (!member) return res.status(404).json({ error: 'Member not found' });

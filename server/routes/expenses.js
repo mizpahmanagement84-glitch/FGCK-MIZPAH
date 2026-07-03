@@ -41,7 +41,7 @@ router.post('/', async (req, res) => {
   // Attach sessionId if secretary
   if (req.user?.role === 'secretary') {
     record.sessionId = req.user?.sessionId || 'unknown';
-    record.recordedByName = req.user?.recordedByName || req.user?.username || 'Admin';
+    record.recordedByName = req.user?.recordedByName || 'Secretary';
   }
 
   const recordedRecord = record;
@@ -71,7 +71,7 @@ router.put('/:id', async (req, res) => {
   // Attach sessionId if secretary (though pastor is required for edit)
   if (req.user?.role === 'secretary') {
     record.sessionId = req.user?.sessionId || 'unknown';
-    record.recordedByName = req.user?.recordedByName || req.user?.username || 'Admin';
+    record.recordedByName = req.user?.recordedByName || 'Secretary';
   }
 
   await writeData(data);

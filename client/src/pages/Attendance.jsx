@@ -9,6 +9,11 @@ function Attendance() {
   const [expandedMonths, setExpandedMonths] = useState({});
   const role = localStorage.getItem('role');
 
+  const getRecordedByRecord = (records) => {
+    if (!records || !records.length) return null;
+    return records.slice().reverse().find((record) => record.recordedByName) || records[records.length - 1];
+  };
+
   const formatRecordedBy = (record) => {
     const name = record?.recordedByName || 'Admin';
     if (role === 'pastor' && record?.recordedByMemberNumber) {
@@ -275,7 +280,11 @@ function Attendance() {
                           <td>{group.teens || ''}</td>
                           <td>{group.sundaySchool || ''}</td>
                           <td>{group.total}</td>
-                          {role !== 'elder' && <td style={{ fontSize: '0.9em', color: '#666' }}>{formatRecordedBy(group.records[0])}</td>}
+                          {role !== 'elder' && (
+                            <td style={{ fontSize: '0.9em', color: '#666' }}>
+                              {formatRecordedBy(getRecordedByRecord(group.records))}
+                            </td>
+                          )}
                           <td style={{ position: 'relative' }}>
                             <button
                               type="button"

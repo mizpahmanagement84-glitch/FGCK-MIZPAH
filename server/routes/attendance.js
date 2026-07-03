@@ -33,6 +33,7 @@ router.post('/', async (req, res) => {
   // Track sessionId for secretaries, or who recorded if not an elder
   if (req.user?.role === 'secretary') {
     record.sessionId = req.user?.sessionId || 'unknown';
+    record.recordedByName = req.user?.recordedByName || 'Secretary';
   } else if (req.user?.role !== 'elder') {
     record.recordedBy = req.user?.id || 'unknown';
     record.recordedByName = req.user?.recordedByName || req.user?.username || 'Admin';
@@ -60,6 +61,7 @@ router.put('/:id', async (req, res) => {
   // Track sessionId for secretaries, or who recorded if not an elder
   if (req.user?.role === 'secretary') {
     record.sessionId = req.user?.sessionId || 'unknown';
+    record.recordedByName = req.user?.recordedByName || 'Secretary';
   } else if (req.user?.role !== 'elder') {
     record.recordedBy = req.user?.id || 'unknown';
     record.recordedByName = req.user?.recordedByName || req.user?.username || 'Admin';

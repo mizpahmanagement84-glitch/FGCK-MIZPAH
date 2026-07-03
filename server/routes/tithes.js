@@ -61,7 +61,7 @@ router.post('/', async (req, res) => {
   // Attach sessionId if secretary
   if (req.user?.role === 'secretary') {
     newTithe.sessionId = req.user?.sessionId || 'unknown';
-    newTithe.recordedByName = req.user?.recordedByName || req.user?.username || 'Admin';
+    newTithe.recordedByName = req.user?.recordedByName || 'Secretary';
   }
   
   const recordedTithe = newTithe;
@@ -88,7 +88,7 @@ router.put('/:id', async (req, res) => {
   // Attach sessionId if secretary
   if (req.user?.role === 'secretary') {
     tithe.sessionId = req.user?.sessionId || 'unknown';
-    tithe.recordedByName = req.user?.recordedByName || req.user?.username || 'Admin';
+    tithe.recordedByName = req.user?.recordedByName || 'Secretary';
   }
 
   await writeData(data);

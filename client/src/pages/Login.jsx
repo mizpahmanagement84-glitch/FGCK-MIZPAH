@@ -156,7 +156,8 @@ function Login({ onLogin }) {
   return (
     <div className="page-content" style={{ maxWidth: 420, margin: '80px auto' }}>
       <div className="section-card">
-        <h1 className="page-title">Login</h1>
+        <h1 className="page-title">{selectedRole === 'secretary' ? 'Mizpah Secretary Login' : 'Login'}</h1>
+        {selectedRole === 'secretary' && <p style={{ marginTop: '-8px', marginBottom: '20px', color: '#1f2937' }}>Welcome Secretary — sign in to continue.</p>}
         {error && <div className="alert">{error}</div>}
 
         {!needPasswordChange ? (

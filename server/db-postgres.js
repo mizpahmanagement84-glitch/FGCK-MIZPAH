@@ -175,12 +175,6 @@ async function initDatabase() {
         seedHash: '$2a$10$WzTgN0xwFjF1Y7dH2QxI5Oza/tgynw0kLJYv2X2BQ1YWnjUXLZkOS'
       },
       {
-        username: 'Elder',
-        password: 'Eldermizpah123',
-        role: 'elder',
-        seedHash: '$2a$10$uRFJuYxGe/sQvVHZ7YkIr.9jF1w5oSVt8qj68.EVDswyvRsNf2F.FW'
-      },
-      {
         username: 'MIZPAH',
         password: 'Mizpahsec321',
         role: 'secretary',
@@ -194,11 +188,10 @@ async function initDatabase() {
     if (adminCount === 0) {
       const values = [
         'pastor', bcrypt.hashSync('password123', 10), 'pastor',
-        'Elder', bcrypt.hashSync('Eldermizpah123', 10), 'elder',
         'MIZPAH', bcrypt.hashSync('Mizpahsec321', 10), 'secretary'
       ];
       await query(
-        'INSERT INTO admins (username, password, role) VALUES ($1, $2, $3), ($4, $5, $6), ($7, $8, $9)',
+        'INSERT INTO admins (username, password, role) VALUES ($1, $2, $3), ($4, $5, $6)',
         values
       );
       console.log('✓ Admin users seeded');

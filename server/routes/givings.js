@@ -72,7 +72,7 @@ router.post('/', async (req, res) => {
   // Attach sessionId if secretary
   if (req.user?.role === 'secretary') {
     newGiving.sessionId = req.user?.sessionId || 'unknown';
-    newGiving.recordedByName = req.user?.recordedByName || req.user?.username || 'Admin';
+    newGiving.recordedByName = req.user?.recordedByName || 'Secretary';
   }
   
   const recordedGiving = newGiving;
@@ -97,7 +97,7 @@ router.put('/:id', async (req, res) => {
   // Attach sessionId if secretary
   if (req.user?.role === 'secretary') {
     giving.sessionId = req.user?.sessionId || 'unknown';
-    giving.recordedByName = req.user?.recordedByName || req.user?.username || 'Admin';
+    giving.recordedByName = req.user?.recordedByName || 'Secretary';
   }
 
   await writeData(data);

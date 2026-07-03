@@ -37,7 +37,7 @@ router.post('/', async (req, res) => {
   // Attach sessionId if secretary
   if (req.user?.role === 'secretary') {
     newDepartment.sessionId = req.user?.sessionId || 'unknown';
-    newDepartment.recordedByName = req.user?.recordedByName || req.user?.username || 'Admin';
+    newDepartment.recordedByName = req.user?.recordedByName || 'Secretary';
   }
   data.departments.push(newDepartment);
   await writeData(data);

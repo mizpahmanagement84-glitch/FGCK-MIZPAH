@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom';
 
 function NavBar({ user, onLogout }) {
-  const role = user?.role || localStorage.getItem('role') || 'pastor';
+  const role = String(user?.role || localStorage.getItem('role') || 'pastor').toLowerCase();
   return (
     <aside className="navbar">
       <div>

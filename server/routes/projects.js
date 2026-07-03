@@ -50,6 +50,7 @@ router.post('/', async (req, res) => {
   // Attach sessionId if secretary
   if (req.user?.role === 'secretary') {
     recordedProject.sessionId = req.user?.sessionId || 'unknown';
+    recordedProject.recordedByName = req.user?.recordedByName || req.user?.username || 'Admin';
   }
   data.projects.push(recordedProject);
 

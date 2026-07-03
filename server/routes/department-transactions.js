@@ -8,8 +8,17 @@ router.use(authMiddleware);
 
 router.get('/', async (req, res) => {
   const data = await readData();
-  const transactions = (data.departmentTransactions || [])
+  let transactions = (data.departmentTransactions || [])
     .sort((a, b) => new Date(b.date) - new Date(a.date));
+  
+  // If secretary, only show records from current session
+  if (req.user?.role === 'secretary') {
+    const currentSessionId = req.user?.sessionId;
+    if (currentSessionId) {
+      transactions = transactions.filter((t) => t.sessionId === currentSessionId);
+    }
+  }
+  
   res.json(transactions);
 });
 

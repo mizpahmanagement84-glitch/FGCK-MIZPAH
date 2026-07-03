@@ -259,181 +259,183 @@ function Expenses() {
             <p>No expense records yet.</p>
           ) : (
             monthKeys.map((monthKey) => {
-            const month = monthGroups[monthKey];
-            const dateKeys = Object.keys(month.dateGroups).sort((a, b) => (a > b ? -1 : 1));
-            return (
-              <div key={monthKey} style={{ marginBottom: 16 }}>
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: '12px 16px',
-                    borderRadius: 6,
-                    background: '#f1f1f1',
-                    cursor: 'pointer'
-                  }}
-                  onClick={() => setExpandedHistoryMonth((current) => (current === monthKey ? null : monthKey))}
-                >
-                  <div>{month.monthLabel}</div>
-                  <div><strong>Total: {month.total}</strong></div>
-                </div>
-                {expandedHistoryMonth === monthKey && (
-                  <div style={{ marginTop: 12 }}>
-                    {dateKeys.map((dateKey) => {
-                      const group = month.dateGroups[dateKey];
-                      return (
-                        <div key={dateKey} style={{ marginBottom: 16 }}>
-                          <table className="table-list">
-                            <thead>
-                              <tr>
-                                <th>Date</th>
-                                {sortedExpenseNames.map((expenseName) => (
-                                  <th key={expenseName}>{expenseName}</th>
-                                ))}
-                                <th>Total</th>
-                                <th>Recorded By</th>
-                                <th>Action</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              <tr>
-                                <td>{group.date}</td>
-                                {sortedExpenseNames.map((expenseName) => (
-                                  <td key={expenseName}>{group.expenses[expenseName] || ''}</td>
-                                ))}
-                                <td>{group.total}</td>
-                                <td style={{ fontSize: '0.9em', color: '#666' }}>{formatRecordedBy(group.records[0])}</td>
-                                <td style={{ position: 'relative' }}>
-                                  <button
-                                    type="button"
-                                    className="action-button"
-                                    onClick={() => setActionMenuId((current) => (current === dateKey ? null : dateKey))}
-                                    style={{ backgroundColor: 'red', color: '#fff' }}
-                                  >
-                                    Action
-                                  </button>
-                                  {actionMenuId === dateKey && (
-                                    <div className="action-menu">
-                                      <div style={{ marginBottom: 8 }}>
-                                        <button type="button" onClick={() => { setActionType('edit'); }} style={{ marginRight: 8 }}>Edit</button>
-                                        <button type="button" onClick={() => { setActionType('delete'); }}>Delete</button>
+              const month = monthGroups[monthKey];
+              const dateKeys = Object.keys(month.dateGroups).sort((a, b) => (a > b ? -1 : 1));
+              return (
+                <div key={monthKey} style={{ marginBottom: 16 }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      padding: '12px 16px',
+                      borderRadius: 6,
+                      background: '#f1f1f1',
+                      cursor: 'pointer'
+                    }}
+                    onClick={() => setExpandedHistoryMonth((current) => (current === monthKey ? null : monthKey))}
+                  >
+                    <div>{month.monthLabel}</div>
+                    <div><strong>Total: {month.total}</strong></div>
+                  </div>
+                  {expandedHistoryMonth === monthKey && (
+                    <div style={{ marginTop: 12 }}>
+                      {dateKeys.map((dateKey) => {
+                        const group = month.dateGroups[dateKey];
+                        return (
+                          <div key={dateKey} style={{ marginBottom: 16 }}>
+                            <table className="table-list">
+                              <thead>
+                                <tr>
+                                  <th>Date</th>
+                                  {sortedExpenseNames.map((expenseName) => (
+                                    <th key={expenseName}>{expenseName}</th>
+                                  ))}
+                                  <th>Total</th>
+                                  <th>Recorded By</th>
+                                  <th>Action</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <tr>
+                                  <td>{group.date}</td>
+                                  {sortedExpenseNames.map((expenseName) => (
+                                    <td key={expenseName}>{group.expenses[expenseName] || ''}</td>
+                                  ))}
+                                  <td>{group.total}</td>
+                                  <td style={{ fontSize: '0.9em', color: '#666' }}>{formatRecordedBy(group.records[0])}</td>
+                                  <td style={{ position: 'relative' }}>
+                                    <button
+                                      type="button"
+                                      className="action-button"
+                                      onClick={() => setActionMenuId((current) => (current === dateKey ? null : dateKey))}
+                                      style={{ backgroundColor: 'red', color: '#fff' }}
+                                    >
+                                      Action
+                                    </button>
+                                    {actionMenuId === dateKey && (
+                                      <div className="action-menu">
+                                        <div style={{ marginBottom: 8 }}>
+                                          <button type="button" onClick={() => { setActionType('edit'); }} style={{ marginRight: 8 }}>Edit</button>
+                                          <button type="button" onClick={() => { setActionType('delete'); }}>Delete</button>
+                                        </div>
+
+                                        {actionType === 'edit' && (
+                                          <div className="action-submenu">
+                                            {group.records.map((rec) => (
+                                              <div key={rec.id} style={{ display: 'flex', justifyContent: 'space-between', gap: 8, marginBottom: 4 }}>
+                                                <div>{rec.expense} — {rec.amount}</div>
+                                                <div>
+                                                  <button type="button" onClick={() => handleEditRecord(rec)}>Edit this</button>
+                                                </div>
+                                              </div>
+                                            ))}
+                                            <div>
+                                              <button type="button" onClick={() => { setActionMenuId(null); setActionType(null); }}>Close</button>
+                                            </div>
+                                          </div>
+                                        )}
+
+                                        {actionType === 'delete' && (
+                                          <div className="action-submenu">
+                                            {group.records.map((rec) => (
+                                              <div key={rec.id} style={{ display: 'flex', justifyContent: 'space-between', gap: 8, marginBottom: 4 }}>
+                                                <div>{rec.expense} — {rec.amount}</div>
+                                                <div>
+                                                  <button type="button" onClick={() => handleDeleteRecord(rec)} style={{ color: 'red' }}>Delete</button>
+                                                </div>
+                                              </div>
+                                            ))}
+                                            <div>
+                                              <button type="button" onClick={() => { setActionMenuId(null); setActionType(null); }}>Close</button>
+                                            </div>
+                                          </div>
+                                        )}
                                       </div>
-
-                                      {actionType === 'edit' && (
-                                        <div className="action-submenu">
-                                          {group.records.map((rec) => (
-                                            <div key={rec.id} style={{ display: 'flex', justifyContent: 'space-between', gap: 8, marginBottom: 4 }}>
-                                              <div>{rec.expense} — {rec.amount}</div>
-                                              <div>
-                                                <button type="button" onClick={() => handleEditRecord(rec)}>Edit this</button>
-                                              </div>
-                                            </div>
-                                          ))}
-                                          <div>
-                                            <button type="button" onClick={() => { setActionMenuId(null); setActionType(null); }}>Close</button>
-                                          </div>
-                                        </div>
-                                      )}
-
-                                      {actionType === 'delete' && (
-                                        <div className="action-submenu">
-                                          {group.records.map((rec) => (
-                                            <div key={rec.id} style={{ display: 'flex', justifyContent: 'space-between', gap: 8, marginBottom: 4 }}>
-                                              <div>{rec.expense} — {rec.amount}</div>
-                                              <div>
-                                                <button type="button" onClick={() => handleDeleteRecord(rec)} style={{ color: 'red' }}>Delete</button>
-                                              </div>
-                                            </div>
-                                          ))}
-                                          <div>
-                                            <button type="button" onClick={() => { setActionMenuId(null); setActionType(null); }}>Close</button>
-                                          </div>
-                                        </div>
-                                      )}
-                                    </div>
-                                  )}
-                                </td>
-                              </tr>
-                            </tbody>
-                          </table>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            );
-          })
-        )}
-      </div>
-      {role !== 'elder' && role !== 'secretary' && (
-      <div className="section-card">
-        <h2>Expenditure Summary</h2>
-        {summaryRows.length === 0 ? (
-          <p>No expenditure summary data yet.</p>
-        ) : (
-          summaryRows.map((month) => {
-            const dateKeys = Array.from(
-              new Set([
-                ...Object.keys(offeringsByDate).filter((date) => date.startsWith(month.monthKey)),
-                ...Object.keys(expensesByDate).filter((date) => date.startsWith(month.monthKey))
-              ])
-            ).sort((a, b) => (a > b ? -1 : 1));
-
-            return (
-              <div key={month.monthKey} style={{ marginBottom: 16 }}>
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: '12px 16px',
-                    borderRadius: 6,
-                    background: '#f1f1f1',
-                    cursor: 'pointer'
-                  }}
-                  onClick={() => setExpandedSummaryMonth((current) => (current === month.monthKey ? null : month.monthKey))}
-                >
-                  <div>{month.monthLabel}</div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 16, fontSize: 12 }}>
-                    <span><strong>Balance:</strong> {formatCurrency(month.balance)}</span>
-                    <span style={{ opacity: 0.7 }}>(click to expand)</span>
-                  </div>
+                                    )}
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
-                {expandedSummaryMonth === month.monthKey && (
-                  <div style={{ marginTop: 12 }}>
-                    <table className="table-list">
-                      <thead>
-                        <tr>
-                          <th>Date</th>
-                          <th>Total Income</th>
-                          <th>Expenses</th>
-                          <th>Balance</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {dateKeys.map((dateKey) => {
-                          const income = offeringsByDate[dateKey]?.total || 0;
-                          const expense = expensesByDate[dateKey]?.total || 0;
-                          return (
-                            <tr key={dateKey}>
-                              <td>{dateKey}</td>
-                              <td>{formatCurrency(income)}</td>
-                              <td>{formatCurrency(expense)}</td>
-                              <td>{formatCurrency(income - expense)}</td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
+              );
+            })
+          )}
+        </div>
+      )}
+
+      {role !== 'elder' && role !== 'secretary' && (
+        <div className="section-card">
+          <h2>Expenditure Summary</h2>
+          {summaryRows.length === 0 ? (
+            <p>No expenditure summary data yet.</p>
+          ) : (
+            summaryRows.map((month) => {
+              const dateKeys = Array.from(
+                new Set([
+                  ...Object.keys(offeringsByDate).filter((date) => date.startsWith(month.monthKey)),
+                  ...Object.keys(expensesByDate).filter((date) => date.startsWith(month.monthKey))
+                ])
+              ).sort((a, b) => (a > b ? -1 : 1));
+
+              return (
+                <div key={month.monthKey} style={{ marginBottom: 16 }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      padding: '12px 16px',
+                      borderRadius: 6,
+                      background: '#f1f1f1',
+                      cursor: 'pointer'
+                    }}
+                    onClick={() => setExpandedSummaryMonth((current) => (current === month.monthKey ? null : month.monthKey))}
+                  >
+                    <div>{month.monthLabel}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 16, fontSize: 12 }}>
+                      <span><strong>Balance:</strong> {formatCurrency(month.balance)}</span>
+                      <span style={{ opacity: 0.7 }}>(click to expand)</span>
+                    </div>
                   </div>
-                )}
-              </div>
-            );
-          })
-        )}
-      </div>
+                  {expandedSummaryMonth === month.monthKey && (
+                    <div style={{ marginTop: 12 }}>
+                      <table className="table-list">
+                        <thead>
+                          <tr>
+                            <th>Date</th>
+                            <th>Total Income</th>
+                            <th>Expenses</th>
+                            <th>Balance</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {dateKeys.map((dateKey) => {
+                            const income = offeringsByDate[dateKey]?.total || 0;
+                            const expense = expensesByDate[dateKey]?.total || 0;
+                            return (
+                              <tr key={dateKey}>
+                                <td>{dateKey}</td>
+                                <td>{formatCurrency(income)}</td>
+                                <td>{formatCurrency(expense)}</td>
+                                <td>{formatCurrency(income - expense)}</td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              );
+            })
+          )}
+        </div>
       )}
 
       {editingRecord && (

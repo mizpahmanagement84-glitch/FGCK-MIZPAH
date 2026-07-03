@@ -55,6 +55,7 @@ router.post('/', async (req, res) => {
   // Attach sessionId if secretary
   if (req.user?.role === 'secretary') {
     entry.sessionId = req.user?.sessionId || 'unknown';
+    entry.recordedByName = req.user?.recordedByName || req.user?.username || 'Admin';
   }
   data.welfare.push(entry);
   await writeData(data);

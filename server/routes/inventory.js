@@ -7,7 +7,17 @@ router.use(authMiddleware);
 
 router.get('/', async (req, res) => {
   const data = await readData();
-  res.json(data.inventory || []);
+  let records = data.inventory || [];
+  
+  // If secretary, only show records from current session
+  if (req.user?.role === 'secretary') {
+    const currentSessionId = req.user?.sessionId;
+    if (currentSessionId) {
+      records = records.filter((r) => r.sessionId === currentSessionId);
+    }
+  }
+  
+  res.json(records);
 });
 
 router.post('/', async (req, res) => {
@@ -26,6 +36,12 @@ router.post('/', async (req, res) => {
     qty: Number(qty),
     storage
   };
+  
+  // Attach sessionId if secretary
+  if (req.user?.role === 'secretary') {
+    newRecord.sessionId = req.user?.sessionId || 'unknown';
+    newRecord.recordedByName = req.user?.recordedByName || req.user?.username || 'Admin';
+  }
 
   data.inventory.push(newRecord);
   await writeData(data);
@@ -44,6 +60,12 @@ router.put('/:id', async (req, res) => {
   record.item = item || record.item;
   record.qty = qty !== undefined ? Number(qty) : record.qty;
   record.storage = storage || record.storage;
+  
+  // Attach sessionId if secretary
+  if (req.user?.role === 'secretary') {
+    record.sessionId = req.user?.sessionId || 'unknown';
+    record.recordedByName = req.user?.recordedByName || req.user?.username || 'Admin';
+  }
 
   await writeData(data);
   res.json({ success: true });

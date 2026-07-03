@@ -12,6 +12,11 @@ function authMiddleware(req, res, next) {
       return res.status(401).json({ error: 'Invalid token' });
     }
     req.user = decoded;
+    // Normalize a recordedByName for secretaries so records they create
+    // are clearly labelled as coming from "Secretary" when viewed by pastors
+    if (req.user && req.user.role === 'secretary') {
+      req.user.recordedByName = 'Secretary';
+    }
     next();
   });
 }

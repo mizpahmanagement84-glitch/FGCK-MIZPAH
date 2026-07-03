@@ -12,19 +12,38 @@ function getElderRecordedBy(req, data) {
   };
 }
 
+function getSecretarySessionId(req) {
+  if (!req.user || req.user.role !== 'secretary') return null;
+  return req.user?.sessionId || 'unknown';
+}
+
 function attachRecordedBy(entry, req, data) {
   const recordedByInfo = getElderRecordedBy(req, data);
-  if (!recordedByInfo) return entry;
-  return { 
-    ...entry, 
-    recordedBy: recordedByInfo.digits,
-    recordedByName: recordedByInfo.name,
-    recordedByMemberNumber: recordedByInfo.memberNumber,
-    recordedByUserId: recordedByInfo.userId
-  };
+  if (recordedByInfo) {
+    return { 
+      ...entry, 
+      recordedBy: recordedByInfo.digits,
+      recordedByName: recordedByInfo.name,
+      recordedByMemberNumber: recordedByInfo.memberNumber,
+      recordedByUserId: recordedByInfo.userId
+    };
+  }
+  
+  // Attach sessionId for secretaries
+  const sessionId = getSecretarySessionId(req);
+  if (sessionId) {
+    return { 
+      ...entry, 
+      sessionId,
+      recordedByName: req.user?.recordedByName || 'Secretary'
+    };
+  }
+  
+  return entry;
 }
 
 module.exports = {
   getElderRecordedBy,
+  getSecretarySessionId,
   attachRecordedBy
 };

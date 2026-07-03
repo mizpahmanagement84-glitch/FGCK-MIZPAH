@@ -8,7 +8,17 @@ router.use(authMiddleware);
 router.get('/', async (req, res) => {
   // Fetch all attendance records
   const data = await readData();
-  res.json(data.attendance || []);
+  let records = data.attendance || [];
+  
+  // If secretary, only show records from current session
+  if (req.user?.role === 'secretary') {
+    const currentSessionId = req.user?.sessionId;
+    if (currentSessionId) {
+      records = records.filter((r) => r.sessionId === currentSessionId);
+    }
+  }
+  
+  res.json(records);
 });
 
 router.post('/', async (req, res) => {
@@ -28,10 +38,12 @@ router.post('/', async (req, res) => {
     total: Number(total)
   };
 
-  // Only track who recorded if not an elder
-  if (req.user?.role !== 'elder') {
+  // Track sessionId for secretaries, or who recorded if not an elder
+  if (req.user?.role === 'secretary') {
+    record.sessionId = req.user?.sessionId || 'unknown';
+  } else if (req.user?.role !== 'elder') {
     record.recordedBy = req.user?.id || 'unknown';
-    record.recordedByName = req.user?.username || 'Admin';
+    record.recordedByName = req.user?.recordedByName || req.user?.username || 'Admin';
     record.recordedByMemberNumber = req.user?.memberNumber || null;
   }
 
@@ -52,10 +64,13 @@ router.put('/:id', async (req, res) => {
   record.date = date || record.date;
   record.category = category || record.category;
   record.total = total !== undefined ? Number(total) : record.total;
-  // Only track who recorded if not an elder
-  if (req.user?.role !== 'elder') {
+  
+  // Track sessionId for secretaries, or who recorded if not an elder
+  if (req.user?.role === 'secretary') {
+    record.sessionId = req.user?.sessionId || 'unknown';
+  } else if (req.user?.role !== 'elder') {
     record.recordedBy = req.user?.id || 'unknown';
-    record.recordedByName = req.user?.username || 'Admin';
+    record.recordedByName = req.user?.recordedByName || req.user?.username || 'Admin';
     record.recordedByMemberNumber = req.user?.memberNumber || null;
   }
 

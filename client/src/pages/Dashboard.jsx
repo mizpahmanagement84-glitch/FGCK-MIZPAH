@@ -158,7 +158,7 @@ function Dashboard() {
                   <ul style={{ listStyle: 'disc', paddingLeft: '24px', margin: 0 }}>
                     {memberNames.map((m) => (
                       <li key={m.id} style={{ marginBottom: '6px', fontSize: '14px' }}>
-                        {role === 'elder' ? (
+                        {(role === 'elder' || role === 'secretary') ? (
                           <span style={{ color: '#111827' }}>{m.firstName}</span>
                         ) : (
                           <button

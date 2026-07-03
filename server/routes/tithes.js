@@ -12,6 +12,11 @@ router.get('/', async (req, res) => {
   if (req.user && req.user.role === 'elder') {
     return res.status(403).json({ error: 'Forbidden' });
   }
+
+  // Secretaries should not see tithe history (they can still record)
+  if (req.user && req.user.role === 'secretary') {
+    return res.json([]);
+  }
   let results = (data.tithes || []).map((tithe) => {
     const member = members.find((m) => m.id === tithe.memberId) || {};
     return {
@@ -25,10 +30,12 @@ router.get('/', async (req, res) => {
     const mid = Number(req.query.memberId);
     results = results.filter((r) => r.memberId === mid);
   }
-  // members should only see their own tithes
+  
   if (req.user && req.user.role === 'member') {
+    // members should only see their own tithes
     results = results.filter((r) => r.memberId === Number(req.user.id));
   }
+  
   res.json(results);
 });
 
@@ -49,6 +56,12 @@ router.post('/', async (req, res) => {
     givingDate,
     notes: notes || ''
   };
+  
+  // Attach sessionId if secretary
+  if (req.user?.role === 'secretary') {
+    newTithe.sessionId = req.user?.sessionId || 'unknown';
+  }
+  
   const recordedTithe = newTithe;
 
   data.tithes.push(recordedTithe);
@@ -69,6 +82,11 @@ router.put('/:id', async (req, res) => {
   tithe.amount = Number(amount);
   tithe.givingDate = givingDate;
   tithe.notes = notes || '';
+  
+  // Attach sessionId if secretary
+  if (req.user?.role === 'secretary') {
+    tithe.sessionId = req.user?.sessionId || 'unknown';
+  }
 
   await writeData(data);
   res.json({ success: true });

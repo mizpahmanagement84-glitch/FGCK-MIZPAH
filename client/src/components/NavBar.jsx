@@ -12,6 +12,19 @@ function NavBar({ user, onLogout }) {
       <nav className="nav-links">
         {role !== 'member' && <NavLink className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'} to="/dashboard">Dashboard</NavLink>}
         {role === 'pastor' && <NavLink className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'} to="/members">Members</NavLink>}
+        {role === 'secretary' && (
+          <>
+            <NavLink className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'} to="/members">Members</NavLink>
+            <NavLink className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'} to="/givings">Offerings</NavLink>
+            <NavLink className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'} to="/reports">Tithe</NavLink>
+            <NavLink className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'} to="/projects">Project</NavLink>
+            <NavLink className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'} to="/inventory">Inventory</NavLink>
+            <NavLink className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'} to="/departments">Departments</NavLink>
+            <NavLink className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'} to="/attendance">Attendance</NavLink>
+            <NavLink className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'} to="/expenses">Expenses</NavLink>
+            <NavLink className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'} to="/welfare">Welfare</NavLink>
+          </>
+        )}
         {role === 'member' && <NavLink className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'} to="/member-details">My Details</NavLink>}
         {role === 'member' && <NavLink className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'} to="/my-tithe">My Tithe</NavLink>}
         {role === 'member' && <NavLink className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'} to="/my-project">My Project</NavLink>}

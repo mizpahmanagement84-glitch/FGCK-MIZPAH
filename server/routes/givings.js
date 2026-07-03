@@ -18,6 +18,11 @@ router.get('/', async (req, res) => {
     return res.status(403).json({ error: 'Forbidden' });
   }
 
+  // Secretaries should not see offering history (they can still record)
+  if (req.user && req.user.role === 'secretary') {
+    return res.json([]);
+  }
+
   let results = data.givings
     .map((giving) => {
       const member = members.find((m) => m.id === giving.memberId) || {};
@@ -40,6 +45,7 @@ router.get('/', async (req, res) => {
 
   // members should only see their own givings
   if (req.user && req.user.role === 'member') {
+    // members should only see their own givings
     results = results.filter((r) => r.memberId === Number(req.user.id));
   }
 
@@ -61,6 +67,12 @@ router.post('/', async (req, res) => {
     category: category || 'General',
     notes: notes || ''
   };
+  
+  // Attach sessionId if secretary
+  if (req.user?.role === 'secretary') {
+    newGiving.sessionId = req.user?.sessionId || 'unknown';
+  }
+  
   const recordedGiving = newGiving;
   data.givings.push(recordedGiving);
   await writeData(data);
@@ -79,6 +91,11 @@ router.put('/:id', async (req, res) => {
   giving.givingDate = givingDate;
   giving.category = category || 'General';
   giving.notes = notes || '';
+  
+  // Attach sessionId if secretary
+  if (req.user?.role === 'secretary') {
+    giving.sessionId = req.user?.sessionId || 'unknown';
+  }
 
   await writeData(data);
   res.json({ success: true });

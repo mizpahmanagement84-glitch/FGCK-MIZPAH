@@ -11,7 +11,14 @@ router.get('/', async (req, res) => {
     return res.status(403).json({ error: 'Forbidden' });
   }
   const data = await readData();
-  res.json(data.expenses || []);
+  let records = data.expenses || [];
+  
+  // Secretaries should not see expense history (they can still record)
+  if (req.user && req.user.role === 'secretary') {
+    return res.json([]);
+  }
+  
+  res.json(records);
 });
 
 router.post('/', async (req, res) => {
@@ -30,6 +37,11 @@ router.post('/', async (req, res) => {
     amount: Number(amount),
     date
   };
+  
+  // Attach sessionId if secretary
+  if (req.user?.role === 'secretary') {
+    record.sessionId = req.user?.sessionId || 'unknown';
+  }
 
   const recordedRecord = record;
   data.expenses.push(recordedRecord);
@@ -54,6 +66,11 @@ router.put('/:id', async (req, res) => {
   record.expense = expense || record.expense;
   record.amount = amount !== undefined ? Number(amount) : record.amount;
   record.date = date || record.date;
+  
+  // Attach sessionId if secretary (though pastor is required for edit)
+  if (req.user?.role === 'secretary') {
+    record.sessionId = req.user?.sessionId || 'unknown';
+  }
 
   await writeData(data);
   res.json({ success: true });

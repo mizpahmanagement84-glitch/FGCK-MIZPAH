@@ -91,8 +91,11 @@ function buildInsertStatement(table, columns, row) {
   const keys = Object.keys(row);
   const values = keys.map((key) => row[key]);
   const params = keys.map((_, index) => `$${index + 1}`);
+  // convert camelCase keys to snake_case column names for Postgres
+  const toSnake = (s) => s.replace(/([A-Z])/g, (m) => `_${m.toLowerCase()}`);
+  const columnsList = keys.map((k) => toSnake(k)).join(', ');
   return {
-    text: `INSERT INTO ${table} (${keys.join(', ')}) VALUES (${params.join(', ')})`,
+    text: `INSERT INTO ${table} (${columnsList}) VALUES (${params.join(', ')})`,
     values
   };
 }

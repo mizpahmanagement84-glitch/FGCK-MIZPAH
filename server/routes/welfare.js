@@ -17,9 +17,11 @@ router.get('/', async (req, res) => {
       ...w,
       beneficiaryName: beneficiary.firstName && beneficiary.lastName ? `${beneficiary.firstName} ${beneficiary.lastName}` : beneficiary.firstName || beneficiary.lastName || 'Unknown',
       contributorFirstName: contributor.firstName || '',
-      contributorLastName: contributor.lastName || ''
+      contributorLastName: contributor.lastName || '',
+      recordedByName: w.recordedByName || w.recorded_by_name || ''
     };
   }).sort((a, b) => new Date(b.date) - new Date(a.date));
+
 
   // members should only see their own contributions
   if (req.user && req.user.role === 'member') {

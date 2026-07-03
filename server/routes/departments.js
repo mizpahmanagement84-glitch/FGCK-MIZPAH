@@ -14,14 +14,16 @@ router.get('/', async (req, res) => {
       (dept.description || '').toLowerCase().includes(search)
     );
   }).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  // Ensure recordedByName is visible to viewers
+  const mappedDepartments = departments.map((d) => ({ ...d, recordedByName: d.recordedByName || d.recorded_by_name || '' }));
   // Secretaries should only see departments created in their current session
   if (req.user && req.user.role === 'secretary') {
     const currentSessionId = req.user?.sessionId;
     if (!currentSessionId) return res.json([]);
-    return res.json(departments.filter((d) => d.sessionId === currentSessionId));
+    return res.json(mappedDepartments.filter((d) => d.sessionId === currentSessionId));
   }
 
-  res.json(departments);
+  res.json(mappedDepartments);
 });
 
 router.post('/', async (req, res) => {

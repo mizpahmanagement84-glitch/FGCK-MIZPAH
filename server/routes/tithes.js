@@ -22,7 +22,8 @@ router.get('/', async (req, res) => {
     return {
       ...tithe,
       firstName: member.firstName || '',
-      lastName: member.lastName || ''
+      lastName: member.lastName || '',
+      recordedByName: tithe.recordedByName || tithe.recorded_by_name || ''
     };
   });
   // allow filtering by memberId via query

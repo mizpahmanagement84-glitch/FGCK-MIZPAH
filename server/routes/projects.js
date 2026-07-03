@@ -18,7 +18,8 @@ router.get('/', async (req, res) => {
     return {
       ...project,
       memberName: member.firstName || 'Unknown',
-      memberNumber: member.memberNumber || ''
+      memberNumber: member.memberNumber || '',
+      recordedByName: project.recordedByName || project.recorded_by_name || ''
     };
   });
   if (req.query && req.query.memberId) {

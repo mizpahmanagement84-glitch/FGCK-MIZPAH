@@ -29,7 +29,8 @@ router.get('/', async (req, res) => {
       return {
         ...giving,
         firstName: member.firstName || '',
-        lastName: member.lastName || ''
+        lastName: member.lastName || '',
+        recordedByName: giving.recordedByName || giving.recorded_by_name || ''
       };
     })
     .filter((item) => {

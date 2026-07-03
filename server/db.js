@@ -161,34 +161,44 @@ async function writeData(data) {
     })));
     await insertRows('givings', (data.givings || []).map((item) => ({
       id: item.id,
-      member_id: item.memberId,
+      memberId: item.memberId,
       amount: item.amount,
-      giving_date: item.givingDate,
+      givingDate: item.givingDate,
       category: item.category,
-      notes: item.notes
+      notes: item.notes,
+      sessionId: item.sessionId
     })));
     await insertRows('tithes', (data.tithes || []).map((item) => ({
       id: item.id,
-      member_id: item.memberId,
+      memberId: item.memberId,
       amount: item.amount,
-      giving_date: item.givingDate,
-      notes: item.notes
+      givingDate: item.givingDate,
+      notes: item.notes,
+      sessionId: item.sessionId
     })));
     await insertRows('attendance', data.attendance || []);
     await insertRows('expenses', data.expenses || []);
     await insertRows('projects', (data.projects || []).map((item) => ({
       id: item.id,
-      project_name: item.projectName,
-      member_id: item.memberId,
+      projectName: item.projectName,
+      memberId: item.memberId,
       amount: item.amount,
-      date: item.date
+      date: item.date,
+      sessionId: item.sessionId
     })));
-    await insertRows('inventory', data.inventory || []);
+    await insertRows('inventory', (data.inventory || []).map((it) => ({
+      id: it.id,
+      item: it.item,
+      qty: it.qty,
+      storage: it.storage,
+      sessionId: it.sessionId
+    })));
     await insertRows('departments', (data.departments || []).map((item) => ({
       id: item.id,
       name: item.name,
       description: item.description,
-      created_at: item.createdAt
+      createdAt: item.createdAt,
+      sessionId: item.sessionId
     })));
       await insertRows('department_transactions', (data.departmentTransactions || []).map((item) => ({
         id: item.id,

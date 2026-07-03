@@ -156,6 +156,15 @@ async function initDatabase() {
         console.log(`Note: Could not add recorded_by columns to ${table}:`, e.message);
       }
     }
+    // Add session_id column to tables that may include session-scoped records
+    const sessionTables = ['givings', 'tithes', 'attendance', 'expenses', 'projects', 'inventory', 'departments', 'department_transactions', 'welfare'];
+    for (const table of sessionTables) {
+      try {
+        await query(`ALTER TABLE ${table} ADD COLUMN IF NOT EXISTS session_id TEXT`);
+      } catch (e) {
+        console.log(`Note: Could not add session_id to ${table}:`, e.message);
+      }
+    }
     console.log('✓ Database migration completed');
 
     const defaultAdmins = [

@@ -252,12 +252,13 @@ function Expenses() {
           <p>Expense form is hidden. Click Open to show the form.</p>
         )}
       </div>
-      <div className="section-card">
-        <h2>Expense history</h2>
-        {monthKeys.length === 0 ? (
-          <p>No expense records yet.</p>
-        ) : (
-          monthKeys.map((monthKey) => {
+      {role !== 'secretary' && (
+        <div className="section-card">
+          <h2>Expense history</h2>
+          {monthKeys.length === 0 ? (
+            <p>No expense records yet.</p>
+          ) : (
+            monthKeys.map((monthKey) => {
             const month = monthGroups[monthKey];
             const dateKeys = Object.keys(month.dateGroups).sort((a, b) => (a > b ? -1 : 1));
             return (
@@ -366,7 +367,7 @@ function Expenses() {
           })
         )}
       </div>
-      {localStorage.getItem('role') !== 'elder' && (
+      {role !== 'elder' && role !== 'secretary' && (
       <div className="section-card">
         <h2>Expenditure Summary</h2>
         {summaryRows.length === 0 ? (

@@ -218,72 +218,89 @@ function Reports() {
           <p>Recording form is hidden. Click Open to show the form.</p>
         )}
       </div>
-      <div className="section-card">
-        <h2>Tithe history</h2>
-        {Object.keys(groupedByMonth).length === 0 ? (
-          <p>No tithe records yet.</p>
-        ) : (
-          Object.entries(groupedByMonth).map(([month, entries]) => {
-            const monthTotal = entries.reduce((sum, item) => sum + Number(item.amount), 0);
-            return (
-              <div key={month} style={{ marginBottom: 16 }}>
-                <div
-                  style={{ display: 'flex', justifyContent: 'space-between', cursor: 'pointer', padding: '12px 0' }}
-                  onClick={() => toggleMonth(month)}
-                >
-                  <strong>{month}</strong>
-                  <span>Total: {formatCurrency(monthTotal)}</span>
-                </div>
-                {openMonths[month] && (
-                  <table className="table-list">
-                    <thead>
-                      <tr>
-                        <th>#</th>
-                        <th>Name</th>
-                        <th>Amount</th>
-                        <th>Date</th>
-                        <th>Recorded By</th>
-                        <th>Action</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {entries.map((tithe, index) => (
-                        <tr key={tithe.id}>
-                          <td>{index + 1}</td>
-                          <td>{tithe.firstName || 'Unknown'}</td>
-                          <td>{formatCurrency(tithe.amount)}</td>
-                          <td>{new Date(tithe.givingDate).toLocaleDateString()}</td>
-                          <td style={{ fontSize: '0.9em', color: '#666' }}>{formatRecordedBy(tithe)}</td>
-                          <td style={{ position: 'relative' }}>
-                            <button
-                              type="button"
-                              onClick={() => toggleActionMenu(tithe.id)}
-                              style={{
-                                backgroundColor: '#c0392b',
-                                color: '#fff',
-                                border: 'none',
-                                padding: '6px 12px',
-                                borderRadius: 4,
-                                cursor: 'pointer'
-                              }}
-                            >
-                              Actions
-                            </button>
-                            {actionMenuId === tithe.id && (
-                              <div style={{
-                                position: 'absolute',
-                                top: '100%',
-                                right: 0,
-                                backgroundColor: '#fff',
-                                border: '1px solid #ddd',
-                                boxShadow: '0 4px 10px rgba(0,0,0,0.12)',
-                                zIndex: 10,
-                                width: 140
-                              }}>
-                                {role === 'pastor' && (
+      {role !== 'secretary' && (
+        <div className="section-card">
+          <h2>Tithe history</h2>
+          {Object.keys(groupedByMonth).length === 0 ? (
+            <p>No tithe records yet.</p>
+          ) : (
+            Object.entries(groupedByMonth).map(([month, entries]) => {
+              const monthTotal = entries.reduce((sum, item) => sum + Number(item.amount), 0);
+              return (
+                <div key={month} style={{ marginBottom: 16 }}>
+                  <div
+                    style={{ display: 'flex', justifyContent: 'space-between', cursor: 'pointer', padding: '12px 0' }}
+                    onClick={() => toggleMonth(month)}
+                  >
+                    <strong>{month}</strong>
+                    <span>Total: {formatCurrency(monthTotal)}</span>
+                  </div>
+                  {openMonths[month] && (
+                    <table className="table-list">
+                      <thead>
+                        <tr>
+                          <th>#</th>
+                          <th>Name</th>
+                          <th>Amount</th>
+                          <th>Date</th>
+                          <th>Recorded By</th>
+                          <th>Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {entries.map((tithe, index) => (
+                          <tr key={tithe.id}>
+                            <td>{index + 1}</td>
+                            <td>{tithe.firstName || 'Unknown'}</td>
+                            <td>{formatCurrency(tithe.amount)}</td>
+                            <td>{new Date(tithe.givingDate).toLocaleDateString()}</td>
+                            <td style={{ fontSize: '0.9em', color: '#666' }}>{formatRecordedBy(tithe)}</td>
+                            <td style={{ position: 'relative' }}>
+                              <button
+                                type="button"
+                                onClick={() => toggleActionMenu(tithe.id)}
+                                style={{
+                                  backgroundColor: '#c0392b',
+                                  color: '#fff',
+                                  border: 'none',
+                                  padding: '6px 12px',
+                                  borderRadius: 4,
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                Actions
+                              </button>
+                              {actionMenuId === tithe.id && (
+                                <div style={{
+                                  position: 'absolute',
+                                  top: '100%',
+                                  right: 0,
+                                  backgroundColor: '#fff',
+                                  border: '1px solid #ddd',
+                                  boxShadow: '0 4px 10px rgba(0,0,0,0.12)',
+                                  zIndex: 10,
+                                  width: 140
+                                }}>
+                                  {role === 'pastor' && (
+                                    <button
+                                      type="button"
+                                      onClick={() => handleEditTithe(tithe)}
+                                      style={{
+                                        display: 'block',
+                                        width: '100%',
+                                        textAlign: 'left',
+                                        padding: '8px 10px',
+                                        background: 'none',
+                                        border: 'none',
+                                        cursor: 'pointer'
+                                      }}
+                                    >
+                                      Edit
+                                    </button>
+                                  )}
                                   <button
                                     type="button"
-                                    onClick={() => handleEditTithe(tithe)}
+                                    onClick={() => handleDeleteTithe(tithe.id)}
                                     style={{
                                       display: 'block',
                                       width: '100%',
@@ -291,41 +308,26 @@ function Reports() {
                                       padding: '8px 10px',
                                       background: 'none',
                                       border: 'none',
+                                      color: '#c0392b',
                                       cursor: 'pointer'
                                     }}
                                   >
-                                    Edit
+                                    Delete
                                   </button>
-                                )}
-                                <button
-                                  type="button"
-                                  onClick={() => handleDeleteTithe(tithe.id)}
-                                  style={{
-                                    display: 'block',
-                                    width: '100%',
-                                    textAlign: 'left',
-                                    padding: '8px 10px',
-                                    background: 'none',
-                                    border: 'none',
-                                    color: '#c0392b',
-                                    cursor: 'pointer'
-                                  }}
-                                >
-                                  Delete
-                                </button>
-                              </div>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                )}
-              </div>
-            );
-          })
-        )}
-      </div>
+                                </div>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+              );
+            })
+          )}
+        </div>
+      )}
       <div className="section-card">
         <h2>Quick Summary</h2>
         {Object.keys(groupedTithesByGroup).length === 0 ? (

@@ -206,12 +206,13 @@ function Projects() {
           </form>
         </div>
       )}
-      <div className="section-card">
-        <h2>Project records</h2>
-        {Object.entries(groupedProjects).length === 0 ? (
-          <p>No project records yet.</p>
-        ) : (
-          Object.entries(groupedProjects).map(([projectName, entries], projectIndex) => {
+      {role !== 'secretary' && (
+        <div className="section-card">
+          <h2>Project records</h2>
+          {Object.entries(groupedProjects).length === 0 ? (
+            <p>No project records yet.</p>
+          ) : (
+            Object.entries(groupedProjects).map(([projectName, entries], projectIndex) => {
             const projectTotal = entries.reduce((sum, item) => sum + Number(item.amount), 0);
             return (
               <div key={projectName} style={{ marginBottom: 16 }}>

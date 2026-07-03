@@ -292,7 +292,7 @@ function Givings() {
         </div>
       )}
 
-      {localStorage.getItem('role') !== 'elder' && (
+      {role !== 'elder' && role !== 'secretary' && (
         <div className="section-card">
           <h2>Offering history</h2>
           {Object.keys(grouped).length === 0 && <p>No records</p>}

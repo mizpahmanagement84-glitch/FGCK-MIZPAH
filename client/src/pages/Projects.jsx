@@ -213,66 +213,67 @@ function Projects() {
             <p>No project records yet.</p>
           ) : (
             Object.entries(groupedProjects).map(([projectName, entries], projectIndex) => {
-            const projectTotal = entries.reduce((sum, item) => sum + Number(item.amount), 0);
-            return (
-              <div key={projectName} style={{ marginBottom: 16 }}>
-                <div
-                  style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', padding: '12px 0' }}
-                  onClick={() => toggleProject(projectName)}
-                >
-                  <div>
-                    <strong>{projectName}</strong>
-                    <div style={{ color: '#6b7280', fontSize: '0.95rem' }}>{entries.length} member(s)</div>
+              const projectTotal = entries.reduce((sum, item) => sum + Number(item.amount), 0);
+              return (
+                <div key={projectName} style={{ marginBottom: 16 }}>
+                  <div
+                    style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', padding: '12px 0' }}
+                    onClick={() => toggleProject(projectName)}
+                  >
+                    <div>
+                      <strong>{projectName}</strong>
+                      <div style={{ color: '#6b7280', fontSize: '0.95rem' }}>{entries.length} member(s)</div>
+                    </div>
+                    <span>{formatCurrency(projectTotal)}</span>
                   </div>
-                  <span>{formatCurrency(projectTotal)}</span>
-                </div>
-                {openProjects[projectName] && (
-                  <table className="table-list">
-                    <thead>
-                      <tr>
-                        <th>#</th>
-                        <th>Member</th>
-                        <th>Amount</th>
-                        <th>Date</th>
-                        <th>Recorded By</th>
-                        <th>Action</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {entries.map((project, index) => (
-                        <tr key={project.id}>
-                          <td>{index + 1}</td>
-                          <td>{project.memberName || 'Unknown'}</td>
-                          <td>{formatCurrency(project.amount)}</td>
-                          <td>{new Date(project.date).toLocaleDateString()}</td>
-                          <td style={{ fontSize: '0.9em', color: '#666' }}>{formatRecordedBy(project)}</td>
-                          <td style={{ position: 'relative' }}>
-                            <button
-                              type="button"
-                              className="action-button"
-                              onClick={() => toggleActionMenu(project.id)}
-                            >
-                              Action
-                            </button>
-                            {actionMenuId === project.id && (
-                              <div className="action-menu">
-                                {role === 'pastor' && (
-                                  <button type="button" onClick={() => handleEditProject(project)}>Edit</button>
-                                )}
-                                <button type="button" onClick={() => handleDeleteProject(project.id)}>Delete</button>
-                              </div>
-                            )}
-                          </td>
+                  {openProjects[projectName] && (
+                    <table className="table-list">
+                      <thead>
+                        <tr>
+                          <th>#</th>
+                          <th>Member</th>
+                          <th>Amount</th>
+                          <th>Date</th>
+                          <th>Recorded By</th>
+                          <th>Action</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                )}
-              </div>
-            );
-          })
-        )}
-      </div>
+                      </thead>
+                      <tbody>
+                        {entries.map((project, index) => (
+                          <tr key={project.id}>
+                            <td>{index + 1}</td>
+                            <td>{project.memberName || 'Unknown'}</td>
+                            <td>{formatCurrency(project.amount)}</td>
+                            <td>{new Date(project.date).toLocaleDateString()}</td>
+                            <td style={{ fontSize: '0.9em', color: '#666' }}>{formatRecordedBy(project)}</td>
+                            <td style={{ position: 'relative' }}>
+                              <button
+                                type="button"
+                                className="action-button"
+                                onClick={() => toggleActionMenu(project.id)}
+                              >
+                                Action
+                              </button>
+                              {actionMenuId === project.id && (
+                                <div className="action-menu">
+                                  {role === 'pastor' && (
+                                    <button type="button" onClick={() => handleEditProject(project)}>Edit</button>
+                                  )}
+                                  <button type="button" onClick={() => handleDeleteProject(project.id)}>Delete</button>
+                                </div>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+              );
+            })
+          )}
+        </div>
+      )}
     </div>
   );
 }

@@ -36,6 +36,13 @@ const normalize = (value) => (value || '').trim().toLowerCase();
 
 const isElderMember = (member) => (member?.title || '').trim().toLowerCase() === 'elder';
 
+const generateSessionId = () => {
+  // Generate a unique session ID: timestamp + random string
+  const timestamp = Date.now().toString(36);
+  const random = Math.random().toString(36).substring(2, 15);
+  return `${timestamp}-${random}`;
+};
+
 const findMemberByUsername = (data, username) => {
   const normalizedUsername = normalize(username);
   return data.members.find((m) => {
@@ -62,14 +69,29 @@ router.post('/login', async (req, res) => {
     return res.status(400).json({ error: 'Username and password are required' });
   }
 
+  // Temporary hardcoded secretary test login
+  if (username === 'MIZPAH' && password === 'Mizpahsec321') {
+    const sessionId = generateSessionId();
+    const token = jwt.sign({ id: 99, username: 'MIZPAH', role: 'secretary', sessionId }, process.env.JWT_SECRET || 'secret-key', {
+      expiresIn: '8h'
+    });
+    return res.json({ token, user: { id: 99, username: 'MIZPAH', role: 'secretary' } });
+  }
+
   const normalizedUsername = (username || '').trim().toLowerCase();
   const normalizedPassword = (password || '').trim();
   const normalizedRole = (role || '').trim().toLowerCase();
 
   const data = await readData();
 
-  // Check admins first (pastor / elder)
-  const admin = data.admins.find((item) => item.username.toLowerCase() === normalizedUsername);
+  // Check admins first (pastor / elder / secretary)
+  let admin = data.admins.find((item) => item.username.toLowerCase() === normalizedUsername);
+  if (!admin && normalizedRole) {
+    admin = data.admins.find((item) => item.role.toLowerCase() === normalizedRole);
+  }
+  
+  console.log('Found admin:', admin ? { id: admin.id, username: admin.username, role: admin.role } : 'NOT FOUND');
+
   if (admin) {
     const passwordMatches = bcrypt.compareSync(password, admin.password);
     const fallbackMatch = (
@@ -77,14 +99,20 @@ router.post('/login', async (req, res) => {
     ) || (
       admin.username.toLowerCase() === 'elder' && password === 'Eldermizpah123'
     ) || (
-      admin.username.toLowerCase() === 'secretary' && password === 'Mizpahsec123'
+      admin.role.toLowerCase() === 'secretary' && password === 'Mizpahsec321'
+    ) || (
+      // Temporary hardcoded check for testing
+      admin.username.toLowerCase() === 'mizpah' && password === 'Mizpahsec321'
     );
+
+    console.log('Password check:', { passwordMatches, fallbackMatch });
 
     if (!passwordMatches && !fallbackMatch) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    const token = jwt.sign({ id: admin.id, username: admin.username, role: admin.role }, process.env.JWT_SECRET || 'secret-key', {
+    const sessionId = generateSessionId();
+    const token = jwt.sign({ id: admin.id, username: admin.username, role: admin.role, sessionId }, process.env.JWT_SECRET || 'secret-key', {
       expiresIn: '8h'
     });
     return res.json({ token, user: { id: admin.id, username: admin.username, role: admin.role } });
@@ -103,7 +131,8 @@ router.post('/login', async (req, res) => {
 
   // If member has a stored password and it matches, log them in normally.
   if (member.password && bcrypt.compareSync(normalizedPassword, member.password)) {
-    const token = jwt.sign({ id: member.id, username: member.firstName, role: memberRole }, process.env.JWT_SECRET || 'secret-key', {
+    const sessionId = generateSessionId();
+    const token = jwt.sign({ id: member.id, username: member.firstName, role: memberRole, sessionId }, process.env.JWT_SECRET || 'secret-key', {
       expiresIn: '8h'
     });
     return res.json({ token, user: { id: member.id, username: member.firstName, role: memberRole } });
@@ -111,7 +140,8 @@ router.post('/login', async (req, res) => {
 
   // Allow elder members to login with the last three digits of their member number.
   if (memberRole === 'elder' && digitsMatch) {
-    const token = jwt.sign({ id: member.id, username: member.firstName, role: memberRole }, process.env.JWT_SECRET || 'secret-key', {
+    const sessionId = generateSessionId();
+    const token = jwt.sign({ id: member.id, username: member.firstName, role: memberRole, sessionId }, process.env.JWT_SECRET || 'secret-key', {
       expiresIn: '8h'
     });
     return res.json({ token, user: { id: member.id, username: member.firstName, role: memberRole }, needPasswordChange: true });

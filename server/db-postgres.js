@@ -173,9 +173,10 @@ async function initDatabase() {
       },
       {
         username: 'MIZPAH',
-        password: 'Mizpahsec123',
+        password: 'Mizpahsec321',
         role: 'secretary',
-        seedHash: '$2a$10$YQ7ukz7XMoUchVeNuCBIRuIBZbFjQhSOtpfCR9wjmDX21ok7I8kS'
+        seedHash: '$2a$10$55l93Qp2Yc5JaVF0h4KF3ui62GSC5ZCeRHjLCdnUpcwtB0BPowSBG',
+        previousSeedHashes: ['$2a$10$YQ7ukz7XMoUchVeNuCBIRuIBZbFjQhSOtpfCR9wjmDX21ok7I8kS']
       }
     ];
 
@@ -185,7 +186,7 @@ async function initDatabase() {
       const values = [
         'pastor', bcrypt.hashSync('password123', 10), 'pastor',
         'Elder', bcrypt.hashSync('Eldermizpah123', 10), 'elder',
-        'MIZPAH', bcrypt.hashSync('Mizpahsec123', 10), 'secretary'
+        'MIZPAH', bcrypt.hashSync('Mizpahsec321', 10), 'secretary'
       ];
       await query(
         'INSERT INTO admins (username, password, role) VALUES ($1, $2, $3), ($4, $5, $6), ($7, $8, $9)',

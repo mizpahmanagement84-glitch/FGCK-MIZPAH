@@ -29,11 +29,7 @@ router.get('/', async (req, res) => {
   }
 
   // Secretaries should only see welfare records from their current session
-  if (req.user && req.user.role === 'secretary') {
-    const currentSessionId = req.user?.sessionId;
-    if (!currentSessionId) return res.json([]);
-    results = results.filter((r) => r.sessionId === currentSessionId);
-  }
+  // Secretaries can view full welfare history
 
   res.json(results);
 });

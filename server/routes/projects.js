@@ -8,10 +8,7 @@ router.use(authMiddleware);
 router.get('/', async (req, res) => {
   const data = await readData();
   const members = data.members || [];
-  // Secretaries should not see project history (they can still record projects)
-  if (req.user && req.user.role === 'secretary') {
-    return res.json([]);
-  }
+  // Secretaries can view project history
 
   let projects = (data.projects || []).map((project) => {
     const member = members.find((m) => m.id === project.memberId) || {};

@@ -16,13 +16,6 @@ router.get('/', async (req, res) => {
   }).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   // Ensure recordedByName is visible to viewers
   const mappedDepartments = departments.map((d) => ({ ...d, recordedByName: d.recordedByName || d.recorded_by_name || '' }));
-  // Secretaries should only see departments created in their current session
-  if (req.user && req.user.role === 'secretary') {
-    const currentSessionId = req.user?.sessionId;
-    if (!currentSessionId) return res.json([]);
-    return res.json(mappedDepartments.filter((d) => d.sessionId === currentSessionId));
-  }
-
   res.json(mappedDepartments);
 });
 

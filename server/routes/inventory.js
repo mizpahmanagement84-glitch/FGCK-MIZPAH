@@ -9,14 +9,6 @@ router.get('/', async (req, res) => {
   const data = await readData();
   let records = data.inventory || [];
   
-  // If secretary, only show records from current session
-  if (req.user?.role === 'secretary') {
-    const currentSessionId = req.user?.sessionId;
-    if (currentSessionId) {
-      records = records.filter((r) => r.sessionId === currentSessionId);
-    }
-  }
-  
   res.json(records);
 });
 

@@ -26,6 +26,13 @@ router.get('/', async (req, res) => {
     results = results.filter((r) => r.memberId === Number(req.user.id));
   }
 
+  // Secretaries should only see welfare records from their current session
+  if (req.user && req.user.role === 'secretary') {
+    const currentSessionId = req.user?.sessionId;
+    if (!currentSessionId) return res.json([]);
+    results = results.filter((r) => r.sessionId === currentSessionId);
+  }
+
   res.json(results);
 });
 
@@ -45,6 +52,10 @@ router.post('/', async (req, res) => {
     amount: Number(amount),
     date: date || new Date().toISOString()
   };
+  // Attach sessionId if secretary
+  if (req.user?.role === 'secretary') {
+    entry.sessionId = req.user?.sessionId || 'unknown';
+  }
   data.welfare.push(entry);
   await writeData(data);
   res.json(entry);

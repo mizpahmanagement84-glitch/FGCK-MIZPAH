@@ -14,6 +14,13 @@ router.get('/', async (req, res) => {
       (dept.description || '').toLowerCase().includes(search)
     );
   }).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  // Secretaries should only see departments created in their current session
+  if (req.user && req.user.role === 'secretary') {
+    const currentSessionId = req.user?.sessionId;
+    if (!currentSessionId) return res.json([]);
+    return res.json(departments.filter((d) => d.sessionId === currentSessionId));
+  }
+
   res.json(departments);
 });
 
@@ -32,6 +39,10 @@ router.post('/', async (req, res) => {
     description: description || '',
     createdAt: new Date().toISOString()
   };
+  // Attach sessionId if secretary
+  if (req.user?.role === 'secretary') {
+    newDepartment.sessionId = req.user?.sessionId || 'unknown';
+  }
   data.departments.push(newDepartment);
   await writeData(data);
   res.json(newDepartment);

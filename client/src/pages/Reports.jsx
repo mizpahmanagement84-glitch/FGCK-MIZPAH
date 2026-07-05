@@ -14,6 +14,7 @@ function Reports() {
   const [actionMenuId, setActionMenuId] = useState(null);
   const [editingTithe, setEditingTithe] = useState(null);
   const [editingForm, setEditingForm] = useState({ memberId: '', amount: '', givingDate: '', notes: '' });
+  const [editMemberSearch, setEditMemberSearch] = useState('');
   const [editError, setEditError] = useState('');
   const role = localStorage.getItem('role') || '';
 
@@ -70,8 +71,23 @@ function Reports() {
       givingDate: tithe.givingDate || '',
       notes: tithe.notes || ''
     });
+    setEditMemberSearch('');
     setEditError('');
   };
+
+  const handleEditMemberSearch = (event) => {
+    setEditMemberSearch(event.target.value);
+  };
+
+  const filteredEditMembers = useMemo(() => {
+    if (!editMemberSearch.trim()) return members;
+    const query = editMemberSearch.trim().toLowerCase();
+    return members.filter((member) => {
+      const fullName = `${member.firstName || ''} ${member.lastName || ''}`.toLowerCase();
+      const number = String(member.memberNumber || '');
+      return fullName.includes(query) || number.includes(query);
+    });
+  }, [members, editMemberSearch]);
 
   const handleDeleteTithe = async (id) => {
     if (!window.confirm('Delete this tithe record?')) return;
@@ -379,10 +395,18 @@ function Reports() {
             </div>
             <form onSubmit={handleEditSubmit}>
               <div className="form-field" style={{ marginBottom: 12 }}>
+                <label>Search member</label>
+                <input
+                  value={editMemberSearch}
+                  onChange={handleEditMemberSearch}
+                  placeholder="Type member name or number"
+                />
+              </div>
+              <div className="form-field" style={{ marginBottom: 12 }}>
                 <label>Member</label>
                 <select value={editingForm.memberId} onChange={handleEditChange('memberId')} required>
                   <option value="">Select member</option>
-                  {[...members].sort((a, b) => `${a.firstName} ${a.lastName}`.localeCompare(`${b.firstName} ${b.lastName}`)).map((member) => (
+                  {[...filteredEditMembers].sort((a, b) => `${a.firstName} ${a.lastName}`.localeCompare(`${b.firstName} ${b.lastName}`)).map((member) => (
                     <option key={member.id} value={member.id}>
                       {member.firstName}{member.memberNumber ? ` (${member.memberNumber})` : ''}
                     </option>

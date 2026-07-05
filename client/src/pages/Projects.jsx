@@ -7,10 +7,12 @@ function Projects() {
   const [projects, setProjects] = useState([]);
   const [form, setForm] = useState({ projectName: '', memberId: '', amount: '', date: '' });
   const [showForm, setShowForm] = useState(true);
+  const [memberSearch, setMemberSearch] = useState('');
   const [openProjects, setOpenProjects] = useState({});
   const [actionMenuId, setActionMenuId] = useState(null);
   const [editingProject, setEditingProject] = useState(null);
   const [editingForm, setEditingForm] = useState({ projectName: '', memberId: '', amount: '', date: '' });
+  const [editMemberSearch, setEditMemberSearch] = useState('');
   const [editError, setEditError] = useState('');
   const role = localStorage.getItem('role') || '';
 
@@ -37,6 +39,20 @@ function Projects() {
   const handleChange = (field) => (event) => {
     setForm({ ...form, [field]: event.target.value });
   };
+
+  const handleMemberSearch = (event) => {
+    setMemberSearch(event.target.value);
+  };
+
+  const filteredMembers = useMemo(() => {
+    if (!memberSearch.trim()) return members;
+    const query = memberSearch.trim().toLowerCase();
+    return members.filter((member) => {
+      const fullName = `${member.firstName || ''} ${member.lastName || ''}`.toLowerCase();
+      const memberNumber = String(member.memberNumber || '');
+      return fullName.includes(query) || memberNumber.includes(query);
+    });
+  }, [members, memberSearch]);
 
   const groupedProjects = useMemo(() => {
     const grouped = {};
@@ -66,8 +82,23 @@ function Projects() {
       amount: String(project.amount || ''),
       date: project.date || ''
     });
+    setEditMemberSearch('');
     setEditError('');
   };
+
+  const handleEditMemberSearch = (event) => {
+    setEditMemberSearch(event.target.value);
+  };
+
+  const filteredEditMembers = useMemo(() => {
+    if (!editMemberSearch.trim()) return members;
+    const query = editMemberSearch.trim().toLowerCase();
+    return members.filter((member) => {
+      const fullName = `${member.firstName || ''} ${member.lastName || ''}`.toLowerCase();
+      const memberNumber = String(member.memberNumber || '');
+      return fullName.includes(query) || memberNumber.includes(query);
+    });
+  }, [members, editMemberSearch]);
 
   const handleDeleteProject = async (id) => {
     if (!window.confirm('Delete this project record?')) return;
@@ -140,10 +171,18 @@ function Projects() {
                 <input value={form.projectName} onChange={handleChange('projectName')} required />
               </div>
               <div className="form-field">
+                <label>Search member</label>
+                <input
+                  value={memberSearch}
+                  onChange={handleMemberSearch}
+                  placeholder="Type member name or number"
+                />
+              </div>
+              <div className="form-field">
                 <label>Member</label>
                 <select value={form.memberId} onChange={handleChange('memberId')} required>
                   <option value="">Select member</option>
-                  {[...members].sort((a, b) => `${a.firstName} ${a.lastName}`.localeCompare(`${b.firstName} ${b.lastName}`)).map((member) => (
+                  {[...filteredMembers].sort((a, b) => `${a.firstName} ${a.lastName}`.localeCompare(`${b.firstName} ${b.lastName}`)).map((member) => (
                     <option key={member.id} value={member.id}>
                       {member.firstName}{member.memberNumber ? ` (${member.memberNumber})` : ''}
                     </option>
@@ -177,10 +216,18 @@ function Projects() {
                 <input value={editingForm.projectName} onChange={handleEditChange('projectName')} required />
               </div>
               <div className="form-field">
+                <label>Search member</label>
+                <input
+                  value={editMemberSearch}
+                  onChange={handleEditMemberSearch}
+                  placeholder="Type member name or number"
+                />
+              </div>
+              <div className="form-field">
                 <label>Member</label>
                 <select value={editingForm.memberId} onChange={handleEditChange('memberId')} required>
                   <option value="">Select member</option>
-                  {[...members].sort((a, b) => `${a.firstName} ${a.lastName}`.localeCompare(`${b.firstName} ${b.lastName}`)).map((member) => (
+                  {[...filteredEditMembers].sort((a, b) => `${a.firstName} ${a.lastName}`.localeCompare(`${b.firstName} ${b.lastName}`)).map((member) => (
                     <option key={member.id} value={member.id}>
                       {member.firstName}{member.memberNumber ? ` (${member.memberNumber})` : ''}
                     </option>

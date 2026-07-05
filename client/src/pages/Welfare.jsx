@@ -75,18 +75,23 @@ export default function Welfare() {
 
   const beneficiaryOptions = members.map((m) => ({
     id: m.id,
-    label: `${m.firstName} ${m.lastName}`
+    label: `${m.firstName} ${m.lastName}${m.memberNumber ? ` (${m.memberNumber})` : ''}`
   }));
 
   const contributorOptions = beneficiaryOptions;
 
-  const filteredBeneficiaries = beneficiaryOptions.filter((option) =>
-    option.label.toLowerCase().includes(beneficiarySearch.trim().toLowerCase())
-  );
+  const beneficiaryQuery = beneficiarySearch.trim().toLowerCase();
+  const contributorQuery = contributorSearch.trim().toLowerCase();
 
-  const filteredContributors = contributorOptions.filter((option) =>
-    option.label.toLowerCase().includes(contributorSearch.trim().toLowerCase())
-  );
+  const filteredBeneficiaries = beneficiaryOptions.filter((option) => {
+    if (!beneficiaryQuery) return true;
+    return option.label.toLowerCase().includes(beneficiaryQuery);
+  });
+
+  const filteredContributors = contributorOptions.filter((option) => {
+    if (!contributorQuery) return true;
+    return option.label.toLowerCase().includes(contributorQuery);
+  });
 
   return (
     <div>
@@ -98,10 +103,10 @@ export default function Welfare() {
           <form onSubmit={handleSubmit}>
             <div className="input-row">
               <div className="form-field">
-                <label>Beneficiary</label>
+                <label>Search member</label>
                 <input
                   type="text"
-                  placeholder="Search name"
+                  placeholder="Type member name or number"
                   value={beneficiarySearch}
                   onChange={(e) => setBeneficiarySearch(e.target.value)}
                 />
@@ -113,10 +118,10 @@ export default function Welfare() {
                 </select>
               </div>
               <div className="form-field">
-                <label>Contributing Member</label>
+                <label>Search member</label>
                 <input
                   type="text"
-                  placeholder="Search name"
+                  placeholder="Type member name or number"
                   value={contributorSearch}
                   onChange={(e) => setContributorSearch(e.target.value)}
                 />

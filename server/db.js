@@ -40,7 +40,7 @@ function mapRow(row) {
 async function readData() {
   // If a Postgres-based implementation is available, use it
   if (query) {
-    const [admins, members, givings, tithes, attendance, expenses, projects, inventory, departments, departmentTransactions] = await Promise.all([
+    const [admins, members, givings, tithes, attendance, expenses, projects, inventory, departments, departmentTransactions, welfare] = await Promise.all([
       query('SELECT id, username, password, role FROM admins ORDER BY id').then((r) => r.rows),
       query(`SELECT ${memberColumns.join(', ')} FROM members ORDER BY id`).then((r) => r.rows),
       query('SELECT id, member_id AS "memberId", amount, giving_date AS "givingDate", category, notes FROM givings ORDER BY id').then((r) => r.rows),
@@ -50,7 +50,8 @@ async function readData() {
       query('SELECT id, project_name AS "projectName", member_id AS "memberId", amount, date FROM projects ORDER BY id').then((r) => r.rows),
       query('SELECT id, item, qty, storage FROM inventory ORDER BY id').then((r) => r.rows),
       query('SELECT id, name, description, created_at AS "createdAt" FROM departments ORDER BY id').then((r) => r.rows),
-      query('SELECT id, department, amount, date, transaction_type AS "transactionType", created_at AS "createdAt" FROM department_transactions ORDER BY id').then((r) => r.rows)
+      query('SELECT id, department, amount, date, transaction_type AS "transactionType", created_at AS "createdAt" FROM department_transactions ORDER BY id').then((r) => r.rows),
+      query('SELECT id, beneficiary_id AS "beneficiaryId", member_id AS "memberId", amount, date, session_id AS "sessionId", recorded_by AS "recordedBy", recorded_by_name AS "recordedByName", recorded_by_member_number AS "recordedByMemberNumber", recorded_by_user_id AS "recordedByUserId" FROM welfare ORDER BY id').then((r) => r.rows)
     ]);
 
     const lastId = (items) => (items && items.length ? Math.max(...items.map((item) => Number(item.id))) : 0);
@@ -66,6 +67,7 @@ async function readData() {
       inventory,
       departments,
       departmentTransactions,
+      welfare,
       lastAdminId: lastId(admins),
       lastMemberId: lastId(members),
       lastGivingId: lastId(givings),
@@ -75,7 +77,8 @@ async function readData() {
       lastAttendanceId: lastId(attendance),
       lastExpenseId: lastId(expenses),
       lastDepartmentId: lastId(departments),
-      lastTransactionId: lastId(departmentTransactions)
+      lastTransactionId: lastId(departmentTransactions),
+      lastWelfareId: lastId(welfare)
     };
   }
 
@@ -113,6 +116,7 @@ async function writeData(data) {
       'givings',
       'attendance',
       'expenses',
+      'welfare',
       'members',
       'admins'
     ];
@@ -192,6 +196,18 @@ async function writeData(data) {
       qty: it.qty,
       storage: it.storage,
       sessionId: it.sessionId
+    })));
+    await insertRows('welfare', (data.welfare || []).map((item) => ({
+      id: item.id,
+      beneficiaryId: item.beneficiaryId,
+      memberId: item.memberId,
+      amount: item.amount,
+      date: item.date,
+      sessionId: item.sessionId,
+      recordedBy: item.recordedBy,
+      recordedByName: item.recordedByName,
+      recordedByMemberNumber: item.recordedByMemberNumber,
+      recordedByUserId: item.recordedByUserId
     })));
     await insertRows('departments', (data.departments || []).map((item) => ({
       id: item.id,

@@ -124,6 +124,14 @@ async function initDatabase() {
         storage TEXT NOT NULL
       );
 
+      CREATE TABLE IF NOT EXISTS welfare (
+        id SERIAL PRIMARY KEY,
+        beneficiary_id INTEGER REFERENCES members(id),
+        member_id INTEGER REFERENCES members(id),
+        amount NUMERIC NOT NULL,
+        date TIMESTAMP WITH TIME ZONE NOT NULL
+      );
+
       CREATE TABLE IF NOT EXISTS departments (
         id SERIAL PRIMARY KEY,
         name TEXT NOT NULL,
